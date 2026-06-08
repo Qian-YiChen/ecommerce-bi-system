@@ -51,6 +51,18 @@
 
       <div class="login-footer">
         <p class="hint-text">测试账号：admin / admin123</p>
+        <el-divider>
+          <span class="divider-text">或</span>
+        </el-divider>
+        <el-button
+          type="success"
+          size="large"
+          class="demo-btn"
+          @click="handleDemoLogin"
+        >
+          <el-icon><MagicStick /></el-icon> 演示模式（无需后端）
+        </el-button>
+        <p class="demo-hint">演示模式使用模拟数据展示所有页面效果</p>
       </div>
     </div>
   </div>
@@ -60,8 +72,9 @@
 import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { User, Lock } from '@element-plus/icons-vue'
+import { User, Lock, MagicStick } from '@element-plus/icons-vue'
 import { useUserStore } from '../../stores/user'
+import { mockData } from '../../api/mock'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -86,7 +99,6 @@ const rules = {
 
 async function handleLogin() {
   if (!formRef.value) return
-
   const valid = await formRef.value.validate().catch(() => false)
   if (!valid) return
 
@@ -100,10 +112,35 @@ async function handleLogin() {
       ElMessage.error(res.message || '用户名或密码错误')
     }
   } catch (err) {
-    ElMessage.error(err.response?.data?.message || '登录失败，请重试')
+    // 如果后端连不上，提示用户使用演示模式
+    if (err.code === 'ERR_NETWORK') {
+      ElMessage.warning('后端服务未启动，请点击"演示模式"浏览页面')
+    } else {
+      ElMessage.error(err.response?.data?.message || '登录失败，请重试')
+    }
   } finally {
     loading.value = false
   }
+}
+
+function handleDemoLogin() {
+  // 演示模式：使用本地 mock 数据直接登录
+  const token = mockData.token()
+  const user = mockData.user
+
+  // 保存到 localStorage
+  localStorage.setItem('token', token)
+  localStorage.setItem('user', JSON.stringify(user))
+
+  // 更新 store
+  userStore.token = token
+  userStore.user = user
+
+  // 标记演示模式
+  localStorage.setItem('demo_mode', 'true')
+
+  ElMessage.success('演示模式已开启')
+  router.push('/dashboard')
 }
 </script>
 
@@ -157,6 +194,12 @@ async function handleLogin() {
   font-size: 16px;
 }
 
+.demo-btn {
+  width: 100%;
+  font-size: 15px;
+  margin-top: 4px;
+}
+
 .login-footer {
   text-align: center;
 }
@@ -164,6 +207,17 @@ async function handleLogin() {
 .hint-text {
   font-size: 12px;
   color: #c0c4cc;
-  margin: 0;
+  margin: 0 0 8px;
+}
+
+.divider-text {
+  font-size: 12px;
+  color: #c0c4cc;
+}
+
+.demo-hint {
+  font-size: 11px;
+  color: #c0c4cc;
+  margin: 8px 0 0;
 }
 </style>
