@@ -79,8 +79,9 @@ CREATE TABLE product (
     sku_code     VARCHAR(50)   NOT NULL                 COMMENT 'SKU编码，唯一',
     category_id  INT           NOT NULL                 COMMENT '所属品类ID',
     price        DECIMAL(10,2) NOT NULL                 COMMENT '销售单价（元）',
-    cost         DECIMAL(10,2) DEFAULT NULL             COMMENT '进货成本（元）',
-    status       TINYINT       NOT NULL DEFAULT 1       COMMENT '状态：1=在售 0=下架',
+    cost            DECIMAL(10,2) DEFAULT NULL             COMMENT '进货成本（元）',
+    stock_quantity  INT           NOT NULL DEFAULT 0       COMMENT '当前库存量',
+    status          TINYINT       NOT NULL DEFAULT 1       COMMENT '状态：1=在售 0=下架',
     created_at   DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     PRIMARY KEY (product_id),
     UNIQUE KEY uk_sku (sku_code),
@@ -179,7 +180,7 @@ CREATE TABLE sales_forecast (
     confidence_lower DECIMAL(10,2) DEFAULT NULL             COMMENT '95%置信区间下限',
     confidence_upper DECIMAL(10,2) DEFAULT NULL             COMMENT '95%置信区间上限',
     model_type       VARCHAR(30)   NOT NULL                 COMMENT '模型类型：linear/arima/moving_avg',
-    mape             DECIMAL(5,4)  DEFAULT NULL             COMMENT '历史拟合MAPE值',
+    mape             DECIMAL(8,2)  DEFAULT NULL             COMMENT '历史拟合MAPE值(%)',
     created_at       DATETIME      NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '预测生成时间',
     PRIMARY KEY (forecast_id),
     KEY idx_product_date (product_id, forecast_date),
@@ -319,43 +320,43 @@ INSERT INTO category (category_id, category_name, parent_id, level) VALUES
 -- ────────────────────────────────────────────────────────────
 -- 2.3 示例商品（每个二级品类下 2-3 个 SKU）
 -- ────────────────────────────────────────────────────────────
-INSERT INTO product (product_id, product_name, sku_code, category_id, price, cost, status) VALUES
+INSERT INTO product (product_id, product_name, sku_code, category_id, price, cost, stock_quantity, status) VALUES
 -- 女装 (cat 11)
-(1,  '纯棉简约T恤女',        'WM-TEE-001',   11, 79.00,  35.00,  1),
-(2,  '法式碎花连衣裙',        'WM-DRS-002',   11, 259.00, 120.00, 1),
-(3,  '高腰阔腿牛仔裤女',      'WM-JNS-003',   11, 189.00, 85.00,  1),
+(1,  '纯棉简约T恤女',        'WM-TEE-001',   11, 79.00,  35.00,  80,  1),
+(2,  '法式碎花连衣裙',        'WM-DRS-002',   11, 259.00, 120.00, 120, 1),
+(3,  '高腰阔腿牛仔裤女',      'WM-JNS-003',   11, 189.00, 85.00,  55,  1),
 -- 男装 (cat 12)
-(4,  '商务免烫衬衫男',        'MN-SHT-001',   12, 199.00, 95.00,  1),
-(5,  '轻薄羽绒服男',          'MN-JKT-002',   12, 499.00, 280.00, 1),
+(4,  '商务免烫衬衫男',        'MN-SHT-001',   12, 199.00, 95.00,  90,  1),
+(5,  '轻薄羽绒服男',          'MN-JKT-002',   12, 499.00, 280.00, 150, 1),
 -- 鞋靴 (cat 13)
-(6,  '复古跑步鞋',            'SH-RUN-001',   13, 329.00, 160.00, 1),
-(7,  '真皮商务皮鞋男',        'SH-BUS-002',   13, 459.00, 230.00, 1),
+(6,  '复古跑步鞋',            'SH-RUN-001',   13, 329.00, 160.00, 200, 1),
+(7,  '真皮商务皮鞋男',        'SH-BUS-002',   13, 459.00, 230.00, 45,  1),
 -- 手机通讯 (cat 21)
-(8,  '无线蓝牙耳机 Pro',      'PH-BUD-001',   21, 299.00, 150.00, 1),
-(9,  '快充数据线套装',        'PH-CBL-002',   21, 39.00,  12.00,  1),
-(10, '手机防窥钢化膜',        'PH-FLM-003',   21, 29.00,  8.00,   1),
+(8,  '无线蓝牙耳机 Pro',      'PH-BUD-001',   21, 299.00, 150.00, 65,  1),
+(9,  '快充数据线套装',        'PH-CBL-002',   21, 39.00,  12.00,  140, 1),
+(10, '手机防窥钢化膜',        'PH-FLM-003',   21, 29.00,  8.00,   70,  1),
 -- 电脑办公 (cat 22)
-(11, '机械键盘青轴87键',      'PC-KBD-001',   22, 259.00, 130.00, 1),
-(12, '无线静音鼠标',          'PC-MOU-002',   22, 99.00,  45.00,  1),
+(11, '机械键盘青轴87键',      'PC-KBD-001',   22, 259.00, 130.00, 110, 1),
+(12, '无线静音鼠标',          'PC-MOU-002',   22, 99.00,  45.00,  95,  1),
 -- 智能穿戴 (cat 23)
-(13, '智能手环NFC版',         'WL-BND-001',   23, 199.00, 90.00,  1),
+(13, '智能手环NFC版',         'WL-BND-001',   23, 199.00, 90.00,  60,  1),
 -- 休闲零食 (cat 31)
-(14, '每日坚果礼盒750g',      'FD-NUT-001',   31, 89.00,  50.00,  1),
-(15, '抹茶夹心饼干240g',      'FD-CKY-002',   31, 29.90,  14.00,  1),
-(16, '手撕牛肉干五香味200g',  'FD-JKY-003',   31, 59.90,  32.00,  1),
+(14, '每日坚果礼盒750g',      'FD-NUT-001',   31, 89.00,  50.00,  85,  1),
+(15, '抹茶夹心饼干240g',      'FD-CKY-002',   31, 29.90,  14.00,  130, 1),
+(16, '手撕牛肉干五香味200g',  'FD-JKY-003',   31, 59.90,  32.00,  35,  1),
 -- 饮料冲调 (cat 32)
-(17, '冷萃咖啡液12颗装',      'FD-COF-001',   32, 69.00,  35.00,  1),
-(18, '冻干柠檬片罐装',        'FD-LEM-002',   32, 25.00,  10.00,  1),
+(17, '冷萃咖啡液12颗装',      'FD-COF-001',   32, 69.00,  35.00,  160, 1),
+(18, '冻干柠檬片罐装',        'FD-LEM-002',   32, 25.00,  10.00,  75,  1),
 -- 护肤 (cat 41)
-(19, '氨基酸洁面乳120g',      'BC-FAC-001',   41, 89.00,  38.00,  1),
-(20, '玻尿酸补水面膜5片装',   'BC-MSK-002',   41, 59.00,  22.00,  1),
+(19, '氨基酸洁面乳120g',      'BC-FAC-001',   41, 89.00,  38.00,  40,  1),
+(20, '玻尿酸补水面膜5片装',   'BC-MSK-002',   41, 59.00,  22.00,  105, 1),
 -- 彩妆 (cat 42)
-(21, '雾面哑光口红',          'BC-LIP-001',   42, 99.00,  40.00,  1),
+(21, '雾面哑光口红',          'BC-LIP-001',   42, 99.00,  40.00,  145, 1),
 -- 家纺 (cat 51)
-(22, '纯棉四件套1.8m床',      'HM-BED-001',   51, 399.00, 200.00, 1),
+(22, '纯棉四件套1.8m床',      'HM-BED-001',   51, 399.00, 200.00, 125, 1),
 -- 厨具 (cat 52)
-(23, '不粘锅三件套',          'HM-COK-001',   52, 299.00, 150.00, 1),
-(24, '保温杯500ml不锈钢',     'HM-CUP-002',   52, 79.00,  32.00,  1);
+(23, '不粘锅三件套',          'HM-COK-001',   52, 299.00, 150.00, 50,  1),
+(24, '保温杯500ml不锈钢',     'HM-CUP-002',   52, 79.00,  32.00,  115, 1);
 
 -- ────────────────────────────────────────────────────────────
 -- 2.4 示例客户（匿名化，共20位）
