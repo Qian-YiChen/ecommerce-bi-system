@@ -1,6 +1,7 @@
 ═══════════════════════════════════════════════════════════════
   AI协作技能 — 电商BI系统
   提取自：project-brief.txt + 进度.txt
+  更新日期：2026-06-08（新增 #13-17）
 ═══════════════════════════════════════════════════════════════
 
 【协作模式 — 与AI配合的经验总结】（来自 project-brief.txt）
@@ -50,14 +51,63 @@
      - 每个函数约定清楚：签名、参数类型、返回 JSON 结构、注意事项
 
   12. 文件处理 — sed 中文问题：
-     - sed 处理含中文全角字符（如（）「」）的替换容易报 "unterminated s command"
+     - sed 处理含中文全角字符（如 ()「」）的替换容易报 "unterminated s command"
      - 替代方案：用 Python 做 UTF-8 文件替换
-       D:\Anaconda\python.exe -c "f=open("f","r",encoding="utf-8"); c=f.read(); f.close(); c=c.replace("旧","新"); f=open("f","w",encoding="utf-8"); f.write(c); f.close()"
+       D:\Anaconda\python.exe -c "...c=c.replace('旧','新')..."
+
+  13. MySQL 安装与初始化（2026-06-08 实战）：
+     - winget install Oracle.MySQL 只安装程序文件，不自动初始化
+     - 安装后需手动：
+       a. 创建数据目录（不能在 Program Files 下，权限不够）
+       b. mysqld --datadir="用户目录/mysql-data" --initialize-insecure（生成 root 无密码）
+       c. mysqld --defaults-file="my.ini" &（后台启动）
+       d. mysql -u root → ALTER USER 'root'@'localhost' IDENTIFIED BY '123456'（设密码）
+     - MySQL 8.4 不支持 default_authentication_plugin=mysql_native_password 参数
+     - 数据物理位置：C:\Users\MSI-NB\mysql-data\ecommerce_bi\*.ibd
+     - 每个数据库 = 一个子目录，每张 InnoDB 表 = 一个 .ibd 文件
+     - mysqld（带 d = daemon/服务器进程）不等于 mysql（客户端），先启动服务器才能连接
+
+  14. 数据库坑 — mape 列类型：
+     - DECIMAL(5,4) 最大只能存 9.9999，MAPE 百分比可达 100%+ → 写入报错
+     - 修复：ALTER TABLE ... MODIFY mape DECIMAL(8,2)
+     - 建表时要根据实际数值范围选择 DECIMAL 精度
+
+  15. ML 模块集成经验：
+     - pd.read_sql() 直接传 pymysql.Connection 会出 UserWarning，但能正常工作
+     - 线性回归做基线模型时 MAPE 可能 100%+，对小数据集属于正常
+     - 递归预测时无法更新 lag_7/lag_30，只能用 lag_1 + rolling_mean
+     - 库存数据必须来自数据库真实值，不能用 MOCK_INVENTORY 随机生成
+     - ML 模块需提供独立 API 函数（load_model、predict_xxx_for_api），
+       不能只靠 main() 一次性跑全流程
+
+  16. 文档审计经验：
+     - 函数参数需求文档的函数签名必须和实际交付代码严格一致
+     - 设计文档中模块名应与实际文件结构对应
+       （如 docs 写 sales_predict/stock_predict 但代码是单一 ml_pipeline.py）
+     - 表数量变更（9→10）需同步更新所有文档
+     - 每次组员交付后应交叉比对：docs vs 实际代码 vs 项目结构总览
+
+  18. Git 提交规范 — 每个文件独立 commit：
+     - 不要用 git add . 一次性全部暂存
+     - 每个逻辑独立的文件单独 commit，写清楚这个文件改了什么
+     - 这样 git log 清晰可追溯，出问题知道从哪个 commit 回退
+     - 示例：
+       git add docs/函数参数需求文档.md
+       git commit -m "文档：重写§3薛淞函数签名以匹配实际ml_pipeline.py交付"
+       git add ml/ml_pipeline.py
+       git commit -m "修复：MOCK_INVENTORY→数据库真实库存、新增category_id特征、新增4个API函数"
+
+  17. Windows 编码坑：
+     - Windows 终端默认 GBK，print emoji 会 UnicodeEncodeError
+     - 解决：用英文标记，或 sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
+     - curl 输出中的中文 JSON 显示为 \uXXXX 是正常的（实际内容正确）
 ═══════════════════════════════════════════════════════════════
 
 【下次打开 Claude 时需要做的事】（来自 进度.txt）
-  1. 检查薛淞/闫维岳/姚凯曦的进度
-  2. 若薛淞已交付基线模型 → 开始写 predict_routes.py
-  3. 若两人都没交付 → 催进度 / 先写预警调度模块（不依赖ML）
+  1. 检查闫维岳/姚凯曦的进度
+  2. 写 predict_routes.py（薛淞 ML 已交付 + 已修复）
+  3. 写 data_routes.py + report_routes.py（苏文韬 db_service 已交付）
   4. 推进设计文档其余章节
-  5. 苏文韬 db_service.py 已交付 + 验证通过（06-08）
+  5. 提醒薛淞同步更新函数参数需求文档 §3 以匹配实际交付
+  6. 苏文韬 db_service.py 已交付 + 验证通过（06-08）
+  7. 薛淞 ml_pipeline.py 已交付 + 修复完成 + API 函数就绪（06-08）
