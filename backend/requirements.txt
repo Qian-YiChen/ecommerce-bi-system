@@ -1,0 +1,26 @@
+# 后端框架
+flask>=3.0
+flask-cors>=4.0
+
+# JWT 认证
+pyjwt>=2.8
+
+# 密码哈希
+bcrypt>=4.1
+
+# MySQL 数据库
+pymysql>=1.1
+
+# 请求参数校验
+# （后续如需参数校验框架可加 marshmallow 或 pydantic）
+
+# 定时任务（预警调度用）
+apscheduler>=3.10
+
+# 邮件发送（预警通知用）
+# flask-mail>=0.9  # 如需邮件告警，取消此注释
+
+# 机器学习集成（调用薛淞的模型）
+numpy>=1.24
+pandas>=2.0
+scikit-learn>=1.3
