@@ -5,9 +5,10 @@
 ═══════════════════════════════════════════════════════════════
 
 【总体状态】
-  阶段：✅ 第1-3天全部完成 → ⏳ 第4-8天（P0功能猛攻，等组员交付后启动）
+  阶段：✅ 第1-3天全部完成 + 苏文韬/薛淞已交付 → ⏳ 第4-8天（P0 API对接 + 前端）
   GitHub：https://github.com/Qian-YiChen/ecommerce-bi-system
-  提交：26个文件，5次commit，最新 83b2780（苏文韬 push）
+  提交：29个文件，7次commit，最新 0fc7444（薛淞 push）
+  本次会话（06-08晚）：MySQL环境搭建 + 认证对接验证 + ML模块修复 + 文档审计
 
 ═══════════════════════════════════════════════════════════════
 
@@ -61,24 +62,45 @@
     ✅ backend/requirements.txt — 新增 openpyxl 依赖
 
   待完成：
-    □ Kaggle数据集下载 + ETL导入MySQL
+    □ 【新任务】随机数据生成脚本（当前种子数据为手写INSERT，163条销售记录偏少）
+      - 用 Python Faker 或 numpy 生成 ≥1000 条销售记录
+      - 覆盖更长时间跨度（如2025-01-01 ~ 2026-06-08）
+      - 补充 customer 和 user_profile 数据以匹配
+      - 品类/商品维表保留现有手写数据（为参考数据，无需随机）
     □ 后续API路由：data_routes.py, report_routes.py
 
 ═══════════════════════════════════════════════════════════════
 
-【薛淞 — ML算法】⏳ 待启动
+【薛淞 — ML算法】✅ 已交付基线模型（2026-06-08 GitHub push）
 
-  需要交付（按函数参数需求文档§3实现）：
-    □ predict_sales() — 销售预测（先跑通线性回归基线）
-    □ predict_stock() — 库存预测
-    □ detect_anomalies() — 异常检测规则
-    □ 后续（P1）：compute_profile() — 用户画像
+  已交付：
+    ✅ ml/config.py — ML配置
+    ✅ ml/ml_pipeline.py — 328行完整管道（训练+预测+异常+库存）
+    ✅ ml/ml.md — ML模块设计文档
 
-  数据来源：苏文韬下载Kaggle → 导入MySQL → 薛淞从MySQL取数训练
+  严辰乐修复（06-08）：
+    ✅ MOCK_INVENTORY → 数据库 product.stock_quantity 真实数据
+    ✅ 新增 category_id 特征（模型能区分品类差异）
+    ✅ 新增 4 个 API 函数：load_model() / predict_sales_for_api() /
+       predict_stock_for_api() / detect_anomalies_for_api()
+    ✅ 修复 mape 列 DECIMAL(5,4)→(8,2)
+    ✅ 同步 ml.md 特征列表
 
-  注意：第1天必须跑通基线，不要追求最优模型
+  待完成：
+    □ 用户画像计算（P1）
+    □ 推荐算法（P2）
+    □ 函数签名与 docs/函数参数需求文档.md §3 严重不一致，需薛淞确认以谁为准
 
 ═══════════════════════════════════════════════════════════════
+
+【MySQL 环境】✅ 已就绪（2026-06-08 严辰乐搭建）
+  版本：MySQL 8.4.9
+  数据目录：C:\Users\MSI-NB\mysql-data\
+  配置文件：C:\Users\MSI-NB\mysql-data\my.ini
+  root密码：123456（与 config.py 一致）
+  数据库名：ecommerce_bi（10张表，含种子数据）
+  启动命令：mysqld --defaults-file="C:/Users/MSI-NB/mysql-data/my.ini" &
+  种子账号：admin/admin123  manager/manager123
 
 【闫维岳 — 前端核心页面】⏳ 待启动
 
