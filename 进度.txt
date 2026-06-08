@@ -7,11 +7,11 @@
 【总体状态】
   阶段：✅ 第1-3天全部完成 → ⏳ 第4-8天（P0功能猛攻，等组员交付后启动）
   GitHub：https://github.com/Qian-YiChen/ecommerce-bi-system
-  提交：22个文件，3次commit，最新 720cfba
+  提交：26个文件，5次commit，最新 83b2780（苏文韬 push）
 
 ═══════════════════════════════════════════════════════════════
 
-【严辰乐 — 组长/后端核心】✅ 第1-3天全部完成
+【严辰乐 — 组长/后端核心】✅ 第1-3天全部完成 + 认证对接验证通过
 
   已完成：
     ✅ 需求分析文档 v1.0（docs/需求分析文档.md，943行8章）
@@ -29,14 +29,16 @@
     ✅ 团队分工说明（docs/团队分工说明.md）
     ✅ GitHub仓库创建 + 首次推送
     ✅ README + .gitignore + 项目结构总览
+    ✅ 苏文韬 db_service.py 对接验证（36/36 测试通过，06-08）
+      - backend/test_auth_integration.py 涵盖12组测试
 
   阻塞点：
-    ⏳ 等苏文韬交付 db_service.py（按函数参数需求文档§2实现）
     ⏳ 等薛淞交付预测模型函数（按函数参数需求文档§3实现）
-    在此之前认证API路由的 import 会报错（这是正常的）
+    ⏳ 等闫维岳交付 Vue3 前端框架 + 仪表盘首页
+    ⏳ 等姚凯曦交付登录页 + 测试计划
 
   下一步（第4-8天）：
-    □ 对接苏文韬的 db_service.py，跑通认证流程
+    ✅ 对接苏文韬的 db_service.py，跑通认证流程 — 已完成 2026-06-08
     □ 预测API集成（predict_routes.py，对接薛淞的 predict_sales）
     □ 库存API集成（对接薛淞的 predict_stock）
     □ 预警调度模块（APScheduler定时扫描 + 告警触发）
@@ -44,19 +46,23 @@
 
 ═══════════════════════════════════════════════════════════════
 
-【苏文韬 — 后端数据/数据库】⏳ 待交付
+【苏文韬 — 后端数据/数据库】✅ 已交付核心模块（2026-06-08 GitHub push）
 
-  需要交付：
-    □ database/init.sql — 9张表完整DDL + 种子数据
-    □ backend/database/db_service.py — 按函数参数需求文档§2实现：
-        get_db_connection()
-        get_user_by_username(username)
-        check_user_exists(username)
-        insert_user(user)
+  已交付：
+    ✅ database/init.sql — 10张表完整DDL（659行，含种子数据）
+    ✅ backend/database/db_service.py — 按函数参数需求文档§2全部实现（489行）：
+        get_db_connection()       — MySQL连接（utf8mb4, DictCursor）
+        get_user_by_username()    — 用户查询（认证用）
+        check_user_exists()       — 用户名查重（注册用）
+        insert_user()             — 新用户注册
+        query_sales()             — 多维度销售查询（UC-01，含时序/品类/地区）
+        export_report()           — 报表导出（Excel+CSV，UC-09）
+    ✅ backend/database/__init__.py — 模块导出
+    ✅ backend/requirements.txt — 新增 openpyxl 依赖
+
+  待完成：
     □ Kaggle数据集下载 + ETL导入MySQL
-    □ 后续：query_sales()、export_report()（第4-8天）
-
-  阻塞：严辰乐的认证模块、薛淞的ML训练都依赖数据库就绪
+    □ 后续API路由：data_routes.py, report_routes.py
 
 ═══════════════════════════════════════════════════════════════
 

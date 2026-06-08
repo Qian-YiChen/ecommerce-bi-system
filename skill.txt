@@ -28,19 +28,36 @@
      - 首次 push 用完整 Token URL 会导致后续 `git push` 报 "no upstream branch"
      - 解决：`git push --set-upstream origin main` 绑定一次即可
      - 覆盖同步用 `git commit --allow-empty -m "..."` + `git push`
-  8. 文档产出节奏：
+     - 未 push 成功的本地 commit 可用 `git commit --amend --no-edit` 修复后重推
+     - amend 后 commit hash 会变，这是正常的
+  8. GitHub Token 安全：
+     - Token 绝不能写入会被 push 到 GitHub 的文件中
+     - GitHub Push Protection 会扫描提交内容，检测到 Token 明文会拒绝 push
+     - Token 一旦在对话/文件中暴露，立即去 GitHub Settings → Developer settings → Tokens 删除并重新生成
+     - 正确做法：Token 放在工程目录外的独立文件（如 ../githubToken.txt），代码中用相对路径引用
+     - git remote 中的 Token：`git remote set-url origin https://<新token>@github.com/...`
+  9. Git 代理配置：
+     - 查看 Windows 系统代理：reg query "HKCU\Software\Microsoft\Windows\CurrentVersion\Internet Settings" | grep ProxyServer
+     - 常见代理端口：Clash 7890/7897，V2Ray 10809
+     - 配置：git config --global http.proxy http://127.0.0.1:端口
+     - 同时设置 https.proxy 保持一致
+  10. 文档产出节奏：
      - 需求分析文档、软件设计文档、项目管理文档、团队分工说明 — 四份核心文档
      - 前两份重点在"完整"，后两份重点在"可执行"
      - 不依赖组员的章节先写完，依赖组员的标注 ⏳ 后续补
-  9. 组员接口约定：
+  11. 组员接口约定：
      - 「函数参数需求文档.md」是关键产物 — 严辰乐的代码通过它解耦组员依赖
      - 每个函数约定清楚：签名、参数类型、返回 JSON 结构、注意事项
 
+  12. 文件处理 — sed 中文问题：
+     - sed 处理含中文全角字符（如（）「」）的替换容易报 "unterminated s command"
+     - 替代方案：用 Python 做 UTF-8 文件替换
+       D:\Anaconda\python.exe -c "f=open("f","r",encoding="utf-8"); c=f.read(); f.close(); c=c.replace("旧","新"); f=open("f","w",encoding="utf-8"); f.write(c); f.close()"
 ═══════════════════════════════════════════════════════════════
 
 【下次打开 Claude 时需要做的事】（来自 进度.txt）
-  1. 检查苏文韬/薛淞/闫维岳/姚凯曦的进度
-  2. 若苏文韬已交付 db_service.py → 跑通认证流程
-  3. 若薛淞已交付基线模型 → 开始写 predict_routes.py
-  4. 若两人都没交付 → 催进度 / 先写预警调度模块（不依赖ML）
-  5. 推进设计文档其余章节
+  1. 检查薛淞/闫维岳/姚凯曦的进度
+  2. 若薛淞已交付基线模型 → 开始写 predict_routes.py
+  3. 若两人都没交付 → 催进度 / 先写预警调度模块（不依赖ML）
+  4. 推进设计文档其余章节
+  5. 苏文韬 db_service.py 已交付 + 验证通过（06-08）
