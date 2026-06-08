@@ -51,11 +51,17 @@ def create_app() -> Flask:
     # ── 全局错误处理 ──
     @app.errorhandler(404)
     def not_found(e):
-        return jsonify({"error": "接口不存在", "code": "NOT_FOUND"}), 404
+        return jsonify({
+            "success": False, "data": None,
+            "error": "接口不存在", "code": "NOT_FOUND"
+        }), 404
 
     @app.errorhandler(500)
     def server_error(e):
-        return jsonify({"error": "服务器内部错误，已记录日志", "code": "SERVER_ERROR"}), 500
+        return jsonify({
+            "success": False, "data": None,
+            "error": "服务器内部错误，已记录日志", "code": "SERVER_ERROR"
+        }), 500
 
     return app
 

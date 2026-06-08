@@ -108,6 +108,6 @@
   2. 写 predict_routes.py（薛淞 ML 已交付 + 已修复）
   3. 写 data_routes.py + report_routes.py（苏文韬 db_service 已交付）
   4. 推进设计文档其余章节
-  5. 提醒薛淞同步更新函数参数需求文档 §3 以匹配实际交付
+  5. ✅ 函数参数需求文档 §3 已对齐实际代码（06-08完成）
   6. 苏文韬 db_service.py 已交付 + 验证通过（06-08）
   7. 薛淞 ml_pipeline.py 已交付 + 修复完成 + API 函数就绪（06-08）

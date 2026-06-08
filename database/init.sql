@@ -385,7 +385,7 @@ INSERT INTO customer (customer_id, customer_name, gender, age_group, region, reg
 
 -- ────────────────────────────────────────────────────────────
 -- 2.5 示例销售记录（2025-01 ~ 2026-05，覆盖多品类/地区/渠道）
---    产单约 120 条，便于立即跑通查询和预测
+--    共 163 条销售记录，便于立即跑通查询和预测
 -- ────────────────────────────────────────────────────────────
 INSERT INTO sales_record (product_id, customer_id, quantity, unit_price, total_amount, order_date, region, channel) VALUES
 -- === 2025年数据 ===

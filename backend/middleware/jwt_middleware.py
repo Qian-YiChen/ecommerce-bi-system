@@ -29,13 +29,19 @@ def jwt_required(f):
     def decorated(*args, **kwargs):
         auth_header = request.headers.get("Authorization", "")
         if not auth_header.startswith("Bearer "):
-            return jsonify({"error": "未提供认证令牌", "code": "TOKEN_MISSING"}), 401
+            return jsonify({
+                "success": False, "data": None,
+                "error": "未提供认证令牌", "code": "TOKEN_MISSING"
+            }), 401
 
         token = auth_header[7:]  # 去掉 "Bearer " 前缀
         payload = decode_access_token(token)
 
         if payload is None:
-            return jsonify({"error": "认证令牌无效或已过期，请重新登录", "code": "TOKEN_INVALID"}), 401
+            return jsonify({
+                "success": False, "data": None,
+                "error": "认证令牌无效或已过期，请重新登录", "code": "TOKEN_INVALID"
+            }), 401
 
         g.current_user = {
             "user_id": int(payload["sub"]),
@@ -63,9 +69,15 @@ def role_required(*roles: str):
         def decorated(*args, **kwargs):
             user = g.get("current_user")
             if user is None:
-                return jsonify({"error": "未认证", "code": "UNAUTHORIZED"}), 401
+                return jsonify({
+                    "success": False, "data": None,
+                    "error": "未认证", "code": "UNAUTHORIZED"
+                }), 401
             if user["role"] not in roles:
-                return jsonify({"error": "权限不足", "code": "FORBIDDEN"}), 403
+                return jsonify({
+                    "success": False, "data": None,
+                    "error": "权限不足", "code": "FORBIDDEN"
+                }), 403
             return f(*args, **kwargs)
         return decorated
     return decorator
