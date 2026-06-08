@@ -155,23 +155,34 @@
   │   ├── app.py                   # 主入口 ✅
   │   ├── config.py                # 配置中心 ✅
   │   ├── requirements.txt         # Python依赖 ✅
+  │   ├── test_auth_integration.py # 认证集成测试 ✅
   │   ├── auth/auth_service.py     # JWT + bcrypt ✅
-  │   ├── middleware/               # JWT中间件 ✅
+  │   ├── middleware/jwt_middleware.py # JWT中间件 ✅
   │   ├── models/user.py           # User模型 ✅
-  │   └── routes/auth_routes.py    # 登录/注册API ✅
-  ├── frontend/                    # Vue3 前端 ⏳
-  ├── ml/                          # ML模型 ⏳
-  ├── database/init.sql            # DDL占位 ⏳
+  │   ├── routes/auth_routes.py    # 登录/注册API ✅
+  │   └── database/                # 数据库服务 — 苏文韬 ✅
+  │       ├── __init__.py          # 模块导出 ✅
+  │       └── db_service.py        # CRUD + 查询 + 导出 ✅
+  ├── frontend/                    # Vue3 前端 ⏳（闫维岳 + 姚凯曦）
+  ├── ml/                          # ML模型 — 薛淞 ✅
+  │   ├── config.py                # ML配置 ✅
+  │   ├── ml_pipeline.py           # 训练+预测+异常+库存 ✅
+  │   ├── ml.md                    # ML设计文档 ✅
+  │   └── models/                  # 训练好的模型文件 ✅
+  │       └── sales_lr_baseline.pkl
+  ├── database/init.sql            # 10张表DDL + 种子数据 ✅
   ├── tests/                       # 测试 ⏳
   └── docs/                        # 文档
       ├── 需求分析文档.md           # v1.0 ✅
       ├── 团队分工说明.md           # 2周冲刺版 ✅
-      ├── 函数参数需求文档.md       # 组员接口约定 ✅
+      ├── 函数参数需求文档.md       # 组员接口约定 ⚠️ §3需更新
       ├── GitHub上传教程.md        # GitHub教程 ✅
+      ├── 项目管理文档.md           # v1.0 ⚠️ 进度表需更新
       └── design/
-          └── 设计文档-架构章.md    # 系统架构 ✅
+          ├── 设计文档-架构章.md    # 系统架构 ⚠️ 表数量9→10
+          └── 软件设计文档.md       # 骨架 ⏳
 
-  图例：✅已完成  ⏳待完成
+  图例：✅已完成  ⏳待完成  ⚠️ 需更新
 
 【当前进度】
   详见同目录下的「进度.txt」文件（每次会话结束后更新，下次打开 Claude 时直接读取）
