@@ -4,13 +4,14 @@
 │   └─ 技术栈：Python(Scikit-learn, Statsmodels, Pandas), 模型持久化(joblib/pickle)
 ├─ X.2 销售预测（UC-02）
 │   ├─ 业务目标：预测未来7天/30天各商品日销量
-│   ├─ 输入数据：sales_record(按日聚合销量), date_dim, product
-│   ├─ 特征工程
-│   │   ├─ 时间特征：dayofweek, month, is_holiday
-│   │   ├─ 滞后特征：lag_1, lag_7, lag_30, rolling_mean_7
-│   │   └─ 商品特征：category_level1/2, avg_price(如有)
+│   ├─ 输入数据：sales_record(按日聚合销量) JOIN product(取category_id)
+│   ├─ 特征工程（共7维特征）
+│   │   ├─ 时间特征：dayofweek(0-6), month(1-12), day(1-31), is_weekend(0/1)
+│   │   ├─ 滞后特征：lag_1(前一天销量), rolling_mean_7(前7天均值)
+│   │   │   └─ 说明：lag_7/lag_30 在递归预测场景下无法更新，已移除
+│   │   └─ 商品特征：category_id（品类ID，让模型区分不同品类的销售规律）
 │   ├─ 基线模型：线性回归（普通最小二乘）
-│   │   ├─ 目标变量：sales_qty
+│   │   ├─ 目标变量：total_qty（日销量件数）
 │   │   └─ 评估指标：MAE, RMSE, MAPE
 │   ├─ 进阶模型：ARIMA / Prophet / LightGBM（选1-2，标注P1迭代）
 │   └─ 输出接口：模型预测值写入数据库 predicted_sales 表，由后端API调用
