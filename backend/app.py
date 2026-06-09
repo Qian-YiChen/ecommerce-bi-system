@@ -17,6 +17,8 @@ from flask_cors import CORS
 
 from config import get_config
 from routes.auth_routes import auth_bp
+from routes.data_routes import data_bp
+from routes.report_routes import report_bp
 
 config = get_config()
 
@@ -32,16 +34,14 @@ def create_app() -> Flask:
 
     # 注册蓝图（路由模块）
     app.register_blueprint(auth_bp)
+    app.register_blueprint(data_bp)      # 苏文韬 — 数据查询
+    app.register_blueprint(report_bp)    # 苏文韬 — 报表导出
 
     # ── 后续注册（第4-8天）──
-    # from routes.data_routes import data_bp       # 苏文韬
     # from routes.predict_routes import predict_bp  # 严辰乐
     # from routes.alert_routes import alert_bp      # 严辰乐
-    # from routes.report_routes import report_bp    # 苏文韬
-    # app.register_blueprint(data_bp)
     # app.register_blueprint(predict_bp)
     # app.register_blueprint(alert_bp)
-    # app.register_blueprint(report_bp)
 
     # ── 健康检查 ──
     @app.route("/api/health")
