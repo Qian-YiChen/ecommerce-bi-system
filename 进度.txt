@@ -1,14 +1,14 @@
 ═══════════════════════════════════════════════════════════════
   项目进度 — 电商BI系统
-  更新日期：2026-06-08（第1-3天全部完成 + 文档一致性审计）
-  剩余时间：约10-14天
+  更新日期：2026-06-10（第1-5天全部完成 + 前端交付 + 数据脚本修复）
+  剩余时间：约8-10天
 ═══════════════════════════════════════════════════════════════
 
 【总体状态】
-  阶段：✅ 第1-3天全部完成 + 苏文韬/薛淞已交付 → ⏳ 第4-8天（P0 API对接 + 前端）
+  阶段：✅ 第1-5天完成（后端+ML+前端+数据库+文档）→ ⏳ 第6-8天（P0 API对接 + 预警调度）
   GitHub：https://github.com/Qian-YiChen/ecommerce-bi-system
-  提交：33个文件，34次commit，最新 531c5ee（文档一致性审计 + API响应格式统一）
-  本次会话（06-08晚）：文档一致性审计 → P0/P1/P2共8项修复 → API响应格式统一 → 9文件独立commit推送
+  提交：34次commit，最新 7b3b94c（苏文韬：修复随机数据脚本3项）
+  本次会话（06-10）：数据脚本审查 → 3项修复 → 进度文档同步
 
 ═══════════════════════════════════════════════════════════════
 
@@ -16,37 +16,26 @@
 
   已完成：
     ✅ 需求分析文档 v1.0（docs/需求分析文档.md，943行8章）
-      - 含可行性分析、假设与依赖、接口需求、界面需求、隐私保护
-      - 含需求质量要求自查、评审记录、变更管理、交付要求
     ✅ 后端Flask框架（backend/app.py + config.py + requirements.txt）
     ✅ JWT认证模块（auth_service.py：登录/注册/签发/验证）
     ✅ JWT中间件（jwt_middleware.py：@jwt_required + @role_required）
     ✅ 认证API（routes/auth_routes.py：/login /register /me）
     ✅ User模型（models/user.py：含角色枚举、序列化）
     ✅ 设计文档-架构章（docs/design/设计文档-架构章.md）
-    ✅ 软件设计文档 骨架（docs/design/软件设计文档.md，含架构/模块/接口/界面/DB/部署）
-    ✅ 项目管理文档 骨架（docs/项目管理文档.md，含计划/分工/风险/版本控制/交付清单）
+    ✅ 软件设计文档 骨架（docs/design/软件设计文档.md）
+    ✅ 项目管理文档 骨架（docs/项目管理文档.md）
     ✅ 函数参数需求文档（docs/函数参数需求文档.md）
     ✅ 团队分工说明（docs/团队分工说明.md）
     ✅ GitHub仓库创建 + 首次推送
     ✅ README + .gitignore + 项目结构总览
-    ✅ 苏文韬 db_service.py 对接验证（36/36 测试通过，06-08）
-      - backend/test_auth_integration.py 涵盖12组测试
-    ✅ 文档一致性审计 + 修复（06-08晚，共8项）：
-      - API响应格式统一：auth_routes.py/jwt_middleware.py/app.py
-      - 需求分析文档数据字典§6.2：6张表补充7个缺失字段
-      - 设计文档-架构章：ML模块结构改为实际单文件
-      - 软件设计文档：product表补全stock_quantity、构件图修正
-      - 项目管理文档/进度.txt：同步完成项+阻塞点更新
-      - init.sql注释修正
-    ✅ 9文件独立commit推送（f03d9ac → 531c5ee）
+    ✅ 苏文韬 db_service.py 对接验证（36/36 测试通过）
+    ✅ 文档一致性审计 + 修复（共8项）
+    ✅ 9文件独立commit推送
 
   阻塞点：
-    ⏳ 等闫维岳交付 Vue3 前端框架 + 仪表盘首页
-    ⏳ 等姚凯曦交付登录页 + 测试计划
+    ⏳ 等闫维岳/姚凯曦前端对接后端API
 
-  下一步（第4-8天）：
-    ✅ 对接苏文韬的 db_service.py，跑通认证流程 — 已完成 2026-06-08
+  下一步（第6-8天）：
     □ 预测API集成（predict_routes.py，对接薛淞的 predict_sales）
     □ 库存API集成（对接薛淞的 predict_stock）
     □ 预警调度模块（APScheduler定时扫描 + 告警触发）
@@ -54,27 +43,22 @@
 
 ═══════════════════════════════════════════════════════════════
 
-【苏文韬 — 后端数据/数据库】✅ 已交付核心模块（2026-06-08 GitHub push）
+【苏文韬 — 后端数据/数据库】✅ 核心模块全部交付（2026-06-10 修复完成）
 
   已交付：
     ✅ database/init.sql — 10张表完整DDL（659行，含种子数据）
-    ✅ backend/database/db_service.py — 按函数参数需求文档§2全部实现（489行）：
-        get_db_connection()       — MySQL连接（utf8mb4, DictCursor）
-        get_user_by_username()    — 用户查询（认证用）
-        check_user_exists()       — 用户名查重（注册用）
-        insert_user()             — 新用户注册
-        query_sales()             — 多维度销售查询（UC-01，含时序/品类/地区）
-        export_report()           — 报表导出（Excel+CSV，UC-09）
+    ✅ backend/database/db_service.py — 6个函数全部实现（489行）
     ✅ backend/database/__init__.py — 模块导出
-    ✅ backend/requirements.txt — 新增 openpyxl 依赖
+    ✅ backend/routes/data_routes.py — 数据查询API (UC-01)
+    ✅ backend/routes/report_routes.py — 报表导出API (UC-09)
+    ✅ scripts/generate_mock_data.py — 随机数据生成脚本（1200条销售记录）
+        - 2026-06-10 修复：user_profile与init.sql UK冲突
+        - 2026-06-10 修复：ON DUPLICATE KEY UPDATE补全字段
+        - 2026-06-10 修复：REGION_WEIGHTS规整到1.0
+    ✅ scripts/output/seed_data.sql — 补充种子数据（80客户+1200销售+80画像）
 
   待完成：
-    □ 【新任务】随机数据生成脚本（当前种子数据为手写INSERT，163条销售记录偏少）
-      - 用 Python Faker 或 numpy 生成 ≥1000 条销售记录
-      - 覆盖更长时间跨度（如2025-01-01 ~ 2026-06-08）
-      - 补充 customer 和 user_profile 数据以匹配
-      - 品类/商品维表保留现有手写数据（为参考数据，无需随机）
-    □ 后续API路由：data_routes.py, report_routes.py
+    □ 设计文档-数据库章
 
 ═══════════════════════════════════════════════════════════════
 
@@ -92,7 +76,7 @@
        predict_stock_for_api() / detect_anomalies_for_api()
     ✅ 修复 mape 列 DECIMAL(5,4)→(8,2)
     ✅ 同步 ml.md 特征列表
-    ✅ 函数签名对齐：更新文档 §3 匹配实际代码交付（见 commit 869e4fb）
+    ✅ 函数签名对齐：更新文档 §3 匹配实际代码交付
 
   待完成：
     □ 用户画像计算（P1）
@@ -109,22 +93,28 @@
   启动命令：mysqld --defaults-file="C:/Users/MSI-NB/mysql-data/my.ini" &
   种子账号：admin/admin123  manager/manager123
 
-【闫维岳 — 前端核心页面】⏳ 待启动
+【闫维岳 — 前端核心页面】✅ 已交付
 
-  需要交付：
-    □ Vue3项目初始化 + Element Plus + ECharts
-    □ 仪表盘首页（指标卡片 + 趋势概览）
-    □ 布局框架 + 左侧导航 + 路由
-    □ 后续：查询页、预测展示页、报表中心（第4-8天）
+  已完成：
+    ✅ Vue3项目框架（Element Plus + ECharts + Pinia）
+    ✅ 仪表盘首页（指标卡片 + 趋势概览）
+    ✅ 数据查询页（多维度筛选 + 图表）
+    ✅ 预测展示页（销售 + 库存预测）
+    ✅ 报表中心（报表生成 + 导出）
+    ✅ 布局框架（左侧导航 + 路由）
 
 ═══════════════════════════════════════════════════════════════
 
-【姚凯曦 — 前端管理页 + 测试】⏳ 待启动
+【姚凯曦 — 前端管理页 + 测试】✅ 前端已交付 ⏳ 测试待完成
 
-  需要交付：
-    □ 登录页 + 用户管理页
-    □ 预警展示页 + 处置操作
-    □ 数据源配置页
+  已完成：
+    ✅ 登录页（JWT 认证对接）
+    ✅ 用户管理页（角色权限管理）
+    ✅ 预警展示页（告警列表 + 处置）
+    ✅ 数据源配置页
+    ✅ 演示模式（无需后端即可浏览所有页面）
+
+  待完成：
     □ 测试计划文档
     □ 测试数据准备
 
