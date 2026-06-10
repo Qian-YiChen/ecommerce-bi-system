@@ -73,7 +73,7 @@ REGION_NAMES = [
     "广西", "河北", "天津", "山西",
 ]
 REGION_WEIGHTS = [
-    0.14, 0.10, 0.09, 0.07, 0.07, 0.06, 0.06, 0.05,
+    0.15, 0.10, 0.09, 0.07, 0.07, 0.06, 0.06, 0.05,
     0.05, 0.04, 0.04, 0.04, 0.03, 0.03, 0.03, 0.03,
     0.02, 0.02, 0.01, 0.01,
 ]
@@ -399,13 +399,17 @@ def write_sql(new_customers, sales, profiles, output_path: str):
     """将所有生成数据写为 SQL 文件"""
     os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
+    # 只输出新客户（ID 21-100）的用户画像，避免与 init.sql 已有的 20 条冲突
+    new_ids = {c["customer_id"] for c in new_customers}
+    new_profiles = [p for p in profiles if p["customer_id"] in new_ids]
+
     with open(output_path, "w", encoding="utf-8") as f:
         f.write("-- ============================================================\n")
         f.write("-- 随机数据生成脚本 输出的补充种子数据\n")
         f.write(f"-- 生成时间: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
         f.write(f"-- 新客户: {len(new_customers)} 位\n")
         f.write(f"-- 销售记录: {len(sales)} 条\n")
-        f.write(f"-- 用户画像: {len(profiles)} 位\n")
+        f.write(f"-- 用户画像: {len(new_profiles)} 位（仅新客户）\n")
         f.write("--\n")
         f.write("-- 用法: 在 MySQL 中 source 此文件，或追加到 init.sql 种子数据后\n")
         f.write("--       注意: 需在已执行 init.sql 的基础上运行\n")
@@ -436,8 +440,8 @@ def write_sql(new_customers, sales, profiles, output_path: str):
         f.write(to_sql_insert("sales_record", sales_cols, sales_rows))
         f.write("\n")
 
-        # ── 用户画像 ──
-        f.write("-- 补充用户画像\n")
+        # ── 用户画像（仅新客户） ──
+        f.write("-- 补充用户画像（仅新客户 ID 21-100）\n")
         prof_cols = ["customer_id", "value_level", "avg_order_price",
                      "purchase_frequency", "preferred_category",
                      "promo_sensitivity", "last_purchase_date", "updated_at"]
@@ -445,7 +449,7 @@ def write_sql(new_customers, sales, profiles, output_path: str):
             [p["customer_id"], p["value_level"], p["avg_order_price"],
              p["purchase_frequency"], p["preferred_category"],
              p["promo_sensitivity"], p["last_purchase_date"], p["updated_at"]]
-            for p in profiles
+            for p in new_profiles
         ]
         f.write(to_sql_insert("user_profile", prof_cols, prof_rows))
         f.write("\n")
@@ -455,7 +459,7 @@ def write_sql(new_customers, sales, profiles, output_path: str):
     print(f"\n✅ SQL 文件已生成: {output_path}")
     print(f"   新客户: {len(new_customers)} 位")
     print(f"   销售记录: {len(sales)} 条")
-    print(f"   用户画像: {len(profiles)} 位")
+    print(f"   用户画像: {len(new_profiles)} 位（仅新客户）")
 
 
 def insert_to_db(new_customers, sales, profiles):
@@ -524,6 +528,8 @@ def insert_to_db(new_customers, sales, profiles):
                     "value_level=VALUES(value_level), "
                     "avg_order_price=VALUES(avg_order_price), "
                     "purchase_frequency=VALUES(purchase_frequency), "
+                    "preferred_category=VALUES(preferred_category), "
+                    "promo_sensitivity=VALUES(promo_sensitivity), "
                     "last_purchase_date=VALUES(last_purchase_date), "
                     "updated_at=VALUES(updated_at)",
                     (p["customer_id"], p["value_level"], p["avg_order_price"],
