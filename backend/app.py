@@ -6,10 +6,12 @@
 
 API 路由:
     认证: /api/auth/login  /api/auth/register  /api/auth/me      ✅
-    数据: /api/data/query  /api/data/export     （苏文韬）        ✅
-    报表: /api/report/generate  /api/report/export （苏文韬）     ✅
-    预测: /api/predict/sales  /api/predict/stock （严辰乐）       ✅
-    预警: /api/alert/scan  /api/alert/rules  /api/alert/logs     ✅
+    数据: /api/data/sales                                   ✅
+    报表: /api/report/generate  /api/report/download        ✅
+    预测: /api/predict/sales  /api/predict/stock            ✅
+    预警: /api/alert/scan  /api/alert/rules  /api/alert/logs ✅
+    管理: /api/admin/users  /api/admin/datasource           ✅ (P1)
+    画像: /api/profile/users                                ✅ (P1)
 """
 
 import sys
@@ -30,6 +32,9 @@ from routes.data_routes import data_bp          # 苏文韬
 from routes.report_routes import report_bp      # 苏文韬
 from routes.predict_routes import predict_bp    # 严辰乐
 from routes.alert_routes import alert_bp        # 严辰乐
+from routes.admin_routes import admin_bp        # 严辰乐 — P1 用户管理
+from routes.datasource_routes import datasource_bp  # 严辰乐 — P1 数据源
+from routes.profile_routes import profile_bp    # 严辰乐 — P1 用户画像
 
 config = get_config()
 
@@ -49,6 +54,9 @@ def create_app() -> Flask:
     app.register_blueprint(report_bp)     # 苏文韬 — 报表导出
     app.register_blueprint(predict_bp)    # 严辰乐 — 销售预测 + 库存补货
     app.register_blueprint(alert_bp)      # 严辰乐 — 预警规则 + 日志 + 扫描
+    app.register_blueprint(admin_bp)      # 严辰乐 — P1 用户管理 CRUD
+    app.register_blueprint(datasource_bp) # 严辰乐 — P1 数据源状态
+    app.register_blueprint(profile_bp)    # 严辰乐 — P1 用户画像
 
     # ── 启动定时预警调度 ──
     try:
