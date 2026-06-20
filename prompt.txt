@@ -137,18 +137,18 @@
   ⏳ 待完成（按优先级）：
 
     P0 — 必须：
-    □ 严辰乐：predict_routes.py（对接薛淞ML函数，写出3条Flask路由）
-    □ 严辰乐：alert_routes.py + APScheduler预警调度
+    ✅ 严辰乐：predict_routes.py（2条路由：predict/sales + predict/stock）— 2026-06-20完成
+    ✅ 严辰乐：alert_routes.py（6条路由）+ scheduler.py（APScheduler）— 2026-06-20完成
     □ 苏文韬：data_routes.py + report_routes.py
     □ 苏文韬：随机数据生成脚本（当前仅163条手写记录，需≥1000条）
-    □ 闫维岳：Vue3项目初始化 + 仪表盘首页 + 布局框架
-    □ 姚凯曦：登录页 + 测试计划文档
+    □ 姚凯曦：Vue3项目初始化 + 仪表盘首页 + 布局框架（原闫维岳）
+    □ 闫维岳：登录页 + 测试计划文档（原姚凯曦）
     □ 严辰乐：设计文档其余章节
 
     P1 — 力争：
     □ 薛淞：用户画像计算 compute_profile()
-    □ 闫维岳：查询页面、预测展示页、报表中心
-    □ 姚凯曦：预警展示页 + 处置操作、数据源配置页
+    □ 姚凯曦：查询页面、预测展示页、报表中心（原闫维岳）
+    □ 闫维岳：预警展示页 + 处置操作、数据源配置页（原姚凯曦）
     □ 苏文韬：画像API（对接薛淞compute_profile）
 
     P2 — 可砍：

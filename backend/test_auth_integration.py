@@ -189,15 +189,15 @@ with patch("database.db_service.get_user_by_username", side_effect=mock_get_user
         check(resp.status_code == 200, f"POST /login -> 200")
         body = resp.get_json()
         check(body["success"] is True, "login success=True")
-        check(body["user"]["username"] == "admin" and body["user"]["role"] == "admin",
-              f"user={body['user']}")
-        token = body["token"]
+        check(body["data"]["user"]["username"] == "admin" and body["data"]["user"]["role"] == "admin",
+              f"user={body['data']['user']}")
+        token = body["data"]["token"]
 
         # GET /me with valid token
         resp = client.get("/api/auth/me",
             headers={"Authorization": f"Bearer {token}"})
         check(resp.status_code == 200, f"GET /me -> 200")
-        check(resp.get_json()["username"] == "admin", "me returns admin")
+        check(resp.get_json()["data"]["username"] == "admin", "me returns admin")
 
         # GET /me without token
         resp = client.get("/api/auth/me")
