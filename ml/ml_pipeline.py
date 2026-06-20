@@ -162,10 +162,15 @@ def train_model(df):
     return model, mape
 
 def load_model(model_name: str = 'sales_lr_baseline.pkl'):
-    """加载已保存的模型"""
-    path = os.path.join(MODEL_DIR, model_name)
+    """加载已保存的模型（自动解析相对于 ml_pipeline.py 的路径）"""
+    # 确保无论从哪里调用（Flask backend/ 或 ml/ 目录），都能找到模型
+    _ml_dir = os.path.dirname(os.path.abspath(__file__))
+    _model_dir = os.path.join(_ml_dir, MODEL_DIR)
+    path = os.path.join(_model_dir, model_name)
     if not os.path.exists(path):
-        raise FileNotFoundError(f"模型文件不存在: {path}")
+        raise FileNotFoundError(
+            f"模型文件不存在: {path}。请先运行 python ml/ml_pipeline.py 训练模型。"
+        )
     return joblib.load(path)
 
 # =============================================================================
@@ -285,10 +290,15 @@ def _insert_alert(rule_id, content, anomaly_val, baseline_val, severity):
 # =============================================================================
 def run_inventory():
     """基于 sales_forecast 中的预测和 product.stock_quantity 计算补货建议"""
-    sql = """SELECT product_id, forecast_date, predicted_quantity
-             FROM sales_forecast
-             WHERE forecast_date >= CURDATE()
-             ORDER BY product_id, forecast_date"""
+    # 取最新一批预测（以最大 forecast_date 为准，兼容历史数据）
+    sql = """SELECT sf.product_id, sf.forecast_date, sf.predicted_quantity
+             FROM sales_forecast sf
+             INNER JOIN (
+                 SELECT product_id, MAX(forecast_date) AS max_date
+                 FROM sales_forecast GROUP BY product_id
+             ) latest ON sf.product_id = latest.product_id
+             AND sf.forecast_date >= DATE_SUB(latest.max_date, INTERVAL 7 DAY)
+             ORDER BY sf.product_id, sf.forecast_date"""
     conn = get_conn()
     df_fc = pd.read_sql(sql, conn)
     conn.close()
@@ -469,6 +479,148 @@ def evaluate_campaigns():
             print("  ROI: 无成本数据")
     print("================================\n")
 
+# ═══════════════════════════════════════════════════════════════
+# API 函数 — 供 Flask 后端调用（严辰乐 2026-06-20 补回）
+# ═══════════════════════════════════════════════════════════════
+
+def predict_sales_for_api() -> List[Dict]:
+    """
+    加载已训练模型，预测未来销量，返回 JSON 友好格式。
+    供 Flask predict_routes.py 调用。
+
+    返回:
+        [{"product_id": 1, "product_name": "纯棉简约T恤女",
+          "forecast_date": "2026-06-21", "predicted_quantity": 15,
+          "model_type": "linear"}, ...]
+    """
+    model = load_model()
+    sales_df = load_sales_aggregated()
+    products = load_product_info()
+    product_ids = products['product_id'].unique()
+
+    feat_df = create_features(sales_df)
+    latest_feats = get_latest_features(feat_df, product_ids)
+    predictions = predict_future(model, latest_feats)
+
+    name_map = dict(zip(products['product_id'], products['product_name']))
+    for p in predictions:
+        p['product_name'] = name_map.get(int(p['product_id']), '未知商品')
+        p['product_id'] = int(p['product_id'])
+        p['predicted_quantity'] = int(p['predicted_quantity'])
+
+    return predictions
+
+
+def predict_stock_for_api() -> List[Dict]:
+    """
+    基于 sales_forecast 中最新预测，计算补货建议。
+    库存数据从 product.stock_quantity 读取（数据库真实数据）。
+    供 Flask predict_routes.py 调用。
+
+    返回:
+        [{"product_id": 1, "product_name": "纯棉简约T恤女",
+          "current_stock": 80, "demand_next_3_days": 12,
+          "safety_stock": 6, "suggest_replenish": 0}, ...]
+    """
+    inventory = load_inventory()
+    products = load_product_info()
+    name_map = dict(zip(products['product_id'], products['product_name']))
+
+    # 取最新一批预测（以最大 forecast_date 为准，兼容历史数据）
+    sql = """SELECT sf.product_id, sf.forecast_date, sf.predicted_quantity
+             FROM sales_forecast sf
+             INNER JOIN (
+                 SELECT product_id, MAX(forecast_date) AS max_date
+                 FROM sales_forecast GROUP BY product_id
+             ) latest ON sf.product_id = latest.product_id
+             AND sf.forecast_date >= DATE_SUB(latest.max_date, INTERVAL 7 DAY)
+             ORDER BY sf.product_id, sf.forecast_date"""
+    conn = get_conn()
+    df_fc = pd.read_sql(sql, conn)
+    conn.close()
+
+    if df_fc.empty:
+        return []
+
+    results = []
+    for pid, group in df_fc.groupby('product_id'):
+        future = group['predicted_quantity'].tolist()
+        stock = inventory.get(pid, 0)
+        demand_lt = sum(future[:3])
+        std_d = np.std(future) if len(future) > 1 else 1.0
+        safety = max(0, 1.65 * np.sqrt(3) * std_d)
+        suggest = max(0, int(np.ceil(demand_lt + safety - stock)))
+
+        results.append({
+            'product_id': int(pid),
+            'product_name': name_map.get(int(pid), '未知商品'),
+            'current_stock': int(stock),
+            'demand_next_3_days': int(demand_lt),
+            'safety_stock': int(np.ceil(safety)),
+            'suggest_replenish': int(suggest),
+        })
+
+    return results
+
+
+def detect_anomalies_for_api() -> List[Dict]:
+    """
+    执行异常检测，返回触发的告警列表。
+    供 Flask alert_routes.py 调用。
+
+    返回:
+        [{"rule_id": 1, "rule_type": "sales_drop",
+          "content": "全品类销售额较前7日均线下降35.2%...",
+          "severity": "yellow", "anomaly_value": -35.2,
+          "baseline_value": 50000.0}, ...]
+        无异常时返回空列表 []
+    """
+    rules = load_alert_rules()
+    if rules.empty:
+        return []
+
+    sql = """SELECT DATE(order_date) as dt, SUM(total_amount) as daily_revenue
+             FROM sales_record
+             WHERE order_date >= DATE_SUB(CURDATE(), INTERVAL 30 DAY)
+             GROUP BY dt ORDER BY dt"""
+    conn = get_conn()
+    df_rev = pd.read_sql(sql, conn, parse_dates=['dt'])
+    conn.close()
+
+    if df_rev.shape[0] < 8:
+        return []
+
+    df_rev['baseline_7'] = df_rev['daily_revenue'].shift(1).rolling(7).mean()
+    df_rev['baseline_std'] = df_rev['daily_revenue'].shift(1).rolling(7).std()
+    last = df_rev.iloc[-1]
+    latest_rev = last['daily_revenue']
+    baseline = last['baseline_7']
+    std = last['baseline_std'] if not pd.isna(last['baseline_std']) else 0
+
+    alerts = []
+    for _, rule in rules.iterrows():
+        if rule['rule_type'] == 'sales_drop':
+            threshold_pct = float(rule['threshold'])
+            if baseline <= 0:
+                continue
+            change_pct = (latest_rev - baseline) / baseline * 100
+            if change_pct <= threshold_pct:
+                severity = 'orange' if change_pct <= -50 else 'yellow'
+                content = (f"全品类销售额较前7日均线下降{abs(change_pct):.1f}% "
+                           f"(当前{latest_rev:.2f}, 基线{baseline:.2f})")
+                alerts.append({
+                    'rule_id': int(rule['rule_id']),
+                    'rule_type': rule['rule_type'],
+                    'content': content,
+                    'severity': severity,
+                    'anomaly_value': round(change_pct, 2),
+                    'baseline_value': round(baseline, 2),
+                })
+                _insert_alert(rule['rule_id'], content, change_pct, baseline, severity)
+
+    return alerts
+
+
 # =============================================================================
 # 主流程 (P0 + P1 一键执行)
 # =============================================================================
@@ -513,7 +665,7 @@ def main():
     print("[8/8] 营销活动评估...")
     evaluate_campaigns()
 
-    print("\n✅ ML 全管道执行完毕")
+    print("\n[完成] ML 全管道执行完毕")
 
 if __name__ == "__main__":
     main()
