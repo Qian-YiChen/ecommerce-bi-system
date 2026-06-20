@@ -23,10 +23,14 @@ export const useUserStore = defineStore('user', {
     async login(username, password) {
       const res = await authAPI.login(username, password)
       if (res.success) {
-        this.token = res.token
-        this.user = res.user
-        localStorage.setItem('token', res.token)
-        localStorage.setItem('user', JSON.stringify(res.user))
+        // 后端统一格式: {success, data: {token, user}, message}
+        // 兼容 mock: {success, token, user}
+        const token = res.data?.token || res.token
+        const user = res.data?.user || res.user
+        this.token = token
+        this.user = user
+        localStorage.setItem('token', token)
+        localStorage.setItem('user', JSON.stringify(user))
       }
       return res
     },
@@ -42,8 +46,10 @@ export const useUserStore = defineStore('user', {
       try {
         const res = await authAPI.getMe()
         if (res.success !== false) {
-          this.user = res
-          localStorage.setItem('user', JSON.stringify(res))
+          // 后端格式: {success, data: {user_id, username, role}, message}
+          const user = res.data || res
+          this.user = user
+          localStorage.setItem('user', JSON.stringify(user))
         }
       } catch {
         // Token 过期，已由拦截器处理

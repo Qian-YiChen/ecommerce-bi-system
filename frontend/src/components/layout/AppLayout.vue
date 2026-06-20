@@ -20,6 +20,21 @@
         <template #title>仪表盘</template>
       </el-menu-item>
 
+      <el-menu-item index="/query">
+        <el-icon><Search /></el-icon>
+        <template #title>数据查询</template>
+      </el-menu-item>
+
+      <el-menu-item index="/predict">
+        <el-icon><TrendCharts /></el-icon>
+        <template #title>预测分析</template>
+      </el-menu-item>
+
+      <el-menu-item index="/report">
+        <el-icon><Document /></el-icon>
+        <template #title>报表中心</template>
+      </el-menu-item>
+
       <el-menu-item index="/alert">
         <el-icon><WarningFilled /></el-icon>
         <template #title>预警中心</template>
@@ -89,7 +104,7 @@ import { ref, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useUserStore } from '../../stores/user'
 import {
-  Odometer, WarningFilled, Setting, User, DataBoard,
+  Odometer, Search, TrendCharts, Document, WarningFilled, Setting, User, DataBoard,
   UserFilled, ArrowDown, InfoFilled, SwitchButton,
 } from '@element-plus/icons-vue'
 

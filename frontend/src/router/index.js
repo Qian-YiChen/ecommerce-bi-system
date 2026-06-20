@@ -26,6 +26,24 @@ const routes = [
         meta: { title: '仪表盘', icon: 'Odometer' },
       },
       {
+        path: 'query',
+        name: 'Query',
+        component: () => import('../views/query/QueryPage.vue'),
+        meta: { title: '数据查询', icon: 'Search' },
+      },
+      {
+        path: 'predict',
+        name: 'Predict',
+        component: () => import('../views/predict/PredictPage.vue'),
+        meta: { title: '预测分析', icon: 'TrendCharts' },
+      },
+      {
+        path: 'report',
+        name: 'Report',
+        component: () => import('../views/report/ReportPage.vue'),
+        meta: { title: '报表中心', icon: 'Document' },
+      },
+      {
         path: 'alert',
         name: 'Alert',
         component: () => import('../views/alert/AlertPage.vue'),

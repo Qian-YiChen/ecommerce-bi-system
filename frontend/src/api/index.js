@@ -130,90 +130,132 @@ export const userAPI = {
 }
 
 // ── 预警 API ──────────────────────────────────────────
+// 后端路由:
+//   GET    /api/alert/rules            → {success, data: [{rule_id, rule_name, ...}]}
+//   POST   /api/alert/rules            → {success, data: {rule_id}, message}
+//   PUT    /api/alert/rules/<id>       → {success, data: null, message}
+//   GET    /api/alert/logs             → {success, data: {logs, pagination: {total,...}}}
+//   PUT    /api/alert/logs/<id>/resolve → {success, data: null, message}
+//   POST   /api/alert/scan             → {success, data: [...alerts], message}
 export const alertAPI = {
   getRules: wrapWithDemo(
     (params) => api.get('/alert/rules', { params }),
-    () => ({ success: true, rules: [] })
+    () => ({ success: true, data: mockData.alertRules || [] })
   ),
   createRule: wrapWithDemo(
     (data) => api.post('/alert/rules', data),
-    () => ({ success: true, message: '规则创建成功' })
+    () => ({ success: true, data: { rule_id: 99 }, message: '规则创建成功' })
+  ),
+  updateRule: wrapWithDemo(
+    (id, data) => api.put(`/alert/rules/${id}`, data),
+    () => ({ success: true, message: '规则更新成功' })
   ),
   getLogs: wrapWithDemo(
     (params) => api.get('/alert/logs', { params }),
     (params) => {
       let logs = [...mockData.alerts]
-      // 模拟筛选
-      if (params?.status) {
-        logs = logs.filter((l) => l.status === params.status)
-      }
-      if (params?.severity) {
-        logs = logs.filter((l) => l.severity === params.severity)
-      }
-      if (params?.rule_type) {
-        logs = logs.filter((l) => l.rule_type === params.rule_type)
-      }
+      if (params?.status) logs = logs.filter((l) => l.status === params.status)
+      if (params?.severity) logs = logs.filter((l) => l.severity === params.severity)
       return {
         success: true,
-        logs,
-        total: logs.length,
-        stats: mockData.alertStats,
+        data: { logs, pagination: { total: logs.length, page: 1, per_page: 20, total_pages: 1 } },
       }
     }
   ),
+  // 对真实 API 响应做归一化：后端 data: {logs, pagination} → 顶层 {logs, total}
+  getLogsNormalized: wrapWithDemo(
+    async (params) => {
+      const res = await api.get('/alert/logs', { params })
+      if (res.success && res.data) {
+        return {
+          success: true,
+          logs: res.data.logs || [],
+          total: res.data.pagination?.total || 0,
+          stats: res.data.stats || {},
+        }
+      }
+      return res
+    },
+    (params) => {
+      let logs = [...mockData.alerts]
+      if (params?.status) logs = logs.filter((l) => l.status === params.status)
+      if (params?.severity) logs = logs.filter((l) => l.severity === params.severity)
+      return { success: true, logs, total: logs.length, stats: mockData.alertStats }
+    }
+  ),
   resolveLog: wrapWithDemo(
-    (id, note) => api.put(`/alert/logs/${id}/resolve`, { note }),
+    (id) => api.put(`/alert/logs/${id}/resolve`),
     () => ({ success: true, message: '已标记为已处理' })
   ),
+  // ignoreLog 复用 resolve 端点（后端无独立 ignore 路由）
   ignoreLog: wrapWithDemo(
-    (id) => api.put(`/alert/logs/${id}/ignore`),
+    (id) => api.put(`/alert/logs/${id}/resolve`),
     () => ({ success: true, message: '已忽略' })
+  ),
+  scanNow: wrapWithDemo(
+    () => api.post('/alert/scan'),
+    () => ({ success: true, data: [], message: '扫描完成，未发现异常' })
   ),
 }
 
 // ── 预测 API ──────────────────────────────────────────
+// 后端路由（同步返回，无需 task 轮询）：
+//   GET  /api/predict/sales → {success, data: [{product_id, product_name,
+//        forecast_date, predicted_quantity, model_type}, ...]}
+//   GET  /api/predict/stock → {success, data: [{product_id, product_name,
+//        current_stock, demand_next_3_days, safety_stock, suggest_replenish}, ...]}
 export const predictAPI = {
-  runSales: wrapWithDemo(
-    (params) => api.post('/predict/sales', params),
-    () => ({ success: true, task_id: 'mock-task-001', message: '预测任务已提交' })
-  ),
-  getSalesResult: wrapWithDemo(
-    (taskId) => api.get(`/predict/sales/${taskId}`),
+  getSalesForecast: wrapWithDemo(
+    () => api.get('/predict/sales'),
     () => ({
       success: true,
-      model_used: 'linear_regression',
-      mape: 0.152,
-      confidence: 'medium',
-      forecast: Array.from({ length: 30 }, (_, i) => ({
-        date: new Date(Date.now() + (i + 1) * 86400000).toISOString().substring(0, 10),
-        predicted_sales: 30000 + Math.random() * 15000,
-        lower_bound: 25000 + Math.random() * 10000,
-        upper_bound: 35000 + Math.random() * 20000,
+      data: Array.from({ length: 168 }, (_, i) => ({
+        product_id: (i % 24) + 1,
+        product_name: ['纯棉简约T恤女','法式碎花连衣裙','高腰阔腿牛仔裤女','商务免烫衬衫男',
+          '轻薄羽绒服男','复古跑步鞋','真皮商务皮鞋男','无线蓝牙耳机Pro','快充数据线套装',
+          '手机防窥钢化膜','机械键盘青轴87键','无线静音鼠标','智能手环NFC版','每日坚果礼盒750g',
+          '抹茶夹心饼干240g','手撕牛肉干五香味200g','冷萃咖啡液12颗装','冻干柠檬片罐装',
+          '氨基酸洁面乳120g','玻尿酸补水面膜5片装','雾面哑光口红','纯棉四件套1.8m床',
+          '不粘锅三件套','保温杯500ml不锈钢'][i % 24],
+        forecast_date: new Date(Date.now() + (Math.floor(i / 24) + 1) * 86400000)
+          .toISOString().substring(0, 10),
+        predicted_quantity: 5 + Math.floor(Math.random() * 30),
+        model_type: 'linear',
       })),
     })
   ),
-  runStock: wrapWithDemo(
-    (params) => api.post('/predict/stock', params),
+  getStockSuggestions: wrapWithDemo(
+    () => api.get('/predict/stock'),
     () => ({
       success: true,
-      products: [
-        { product_id: 1, product_name: '纯棉T恤', current_stock: 500, predicted_demand: 620, safety_stock: 150, suggested_replenish: 270, risk_level: 'warning' },
-        { product_id: 3, product_name: 'iPhone 15 Pro', current_stock: 50, predicted_demand: 200, safety_stock: 100, suggested_replenish: 250, risk_level: 'danger' },
-        { product_id: 5, product_name: '薯片大礼包', current_stock: 1000, predicted_demand: 800, safety_stock: 300, suggested_replenish: 100, risk_level: 'safe' },
+      data: [
+        { product_id: 1, product_name: '纯棉T恤', current_stock: 80, demand_next_3_days: 12, safety_stock: 6, suggest_replenish: 0 },
+        { product_id: 3, product_name: '高腰阔腿牛仔裤女', current_stock: 55, demand_next_3_days: 45, safety_stock: 15, suggest_replenish: 5 },
+        { product_id: 8, product_name: '无线蓝牙耳机Pro', current_stock: 65, demand_next_3_days: 200, safety_stock: 80, suggest_replenish: 215 },
+        { product_id: 14, product_name: '每日坚果礼盒750g', current_stock: 85, demand_next_3_days: 60, safety_stock: 20, suggest_replenish: 0 },
       ],
     })
   ),
 }
 
 // ── 销售数据查询 API ───────────────────────────────────
+// 后端路由:
+//   GET /api/data/sales?start_date&end_date&... → {success, data: {summary, series, by_category, by_region}}
 export const dataAPI = {
   querySales: wrapWithDemo(
     (params) => api.get('/data/sales', { params }),
     () => ({ success: true, ...mockData.sales })
   ),
-  exportReport: wrapWithDemo(
-    (params) => api.post('/data/export', params, { responseType: 'blob' }),
-    () => ({ success: true, message: '报表已生成', download_url: '/mock/report.pdf' })
+}
+
+// ── 报表导出 API ─────────────────────────────────────
+// 后端路由:
+//   POST /api/report/generate  → {success, data: {filename, download_url}}
+//   GET  /api/report/download/<filename> → 文件流
+export const reportAPI = {
+  generate: wrapWithDemo(
+    (body) => api.post('/report/generate', body),
+    () => ({ success: true, data: { filename: 'report.xlsx', download_url: '/api/report/download/report.xlsx' }, message: '报表生成成功' })
   ),
 }
 
