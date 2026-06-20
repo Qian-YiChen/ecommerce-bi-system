@@ -220,10 +220,12 @@ def query_sales(
         }
     """
     # group_by 映射
+    # 注意：PyMySQL 使用 Python % 格式化做参数替换，MySQL DATE_FORMAT 中的
+    # %Y/%m 等需写为 %%Y/%%m，经 % 转义后变为 MySQL 识别的 %Y/%m。
     date_formats = {
         "day":   "DATE(order_date)",
         "week":  "DATE(DATE_SUB(order_date, INTERVAL WEEKDAY(order_date) DAY))",
-        "month": "DATE_FORMAT(order_date, '%Y-%m-01')",
+        "month": "DATE_FORMAT(order_date, '%%Y-%%m-01')",
     }
     if group_by not in date_formats:
         raise ValueError(f"无效的 group_by 参数: {group_by}，可选值：day/week/month")
