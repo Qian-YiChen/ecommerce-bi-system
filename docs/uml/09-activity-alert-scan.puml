@@ -1,0 +1,29 @@
+@startuml
+start
+:APScheduler 定时触发;
+:执行预警扫描任务;
+:alert_routes / scheduler 调用 detect_anomalies_for_api();
+:ML 模块读取近7日销售数据;
+:计算基线值与当前值;
+
+if (存在异常?) then (否)
+  :记录扫描完成;
+  stop
+else (是)
+endif
+
+:查询已启用预警规则;
+:匹配 rule_type / threshold / product_id;
+
+if (命中规则?) then (否)
+  :仅返回异常结果;
+  stop
+else (是)
+endif
+
+:写入 alert_log;
+:生成告警内容;
+:返回告警列表;
+:前端或管理员后续处理;
+stop
+@enduml

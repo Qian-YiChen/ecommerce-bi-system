@@ -1,0 +1,39 @@
+@startuml
+skinparam shadowing false
+skinparam packageStyle rectangle
+
+database "MySQL\n业务数据库" as MySQL
+
+rectangle "核心业务数据" {
+  [sales_record\n销售记录] as SalesRecord
+  [product\n商品表] as Product
+  [customer\n客户表] as Customer
+}
+
+rectangle "算法与结果" {
+  [ml_pipeline.py] as Pipeline
+  [sales_forecast\n预测结果表] as Forecast
+  [alert_rule / alert_log\n预警规则与日志] as AlertData
+  [user_profile\n用户画像表] as Profile
+  [训练模型文件] as Model
+}
+
+MySQL --> SalesRecord
+MySQL --> Product
+MySQL --> Customer
+
+Pipeline --> SalesRecord : 读取历史销量
+Pipeline --> Product : 读取商品库存
+Pipeline --> Customer : 读取客户信息
+Pipeline --> Model : 加载模型
+
+Pipeline --> Forecast : 生成销量预测
+Pipeline --> AlertData : 生成预警结果
+Pipeline --> Profile : 生成人群画像
+
+note bottom of Pipeline
+统一负责销量预测、
+异常检测、库存建议
+和用户画像计算
+end note
+@enduml

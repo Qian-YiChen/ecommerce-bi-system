@@ -241,10 +241,112 @@ export const predictAPI = {
 // ── 销售数据查询 API ───────────────────────────────────
 // 后端路由:
 //   GET /api/data/sales?start_date&end_date&... → {success, data: {summary, series, by_category, by_region}}
+function roundCurrency(value) {
+  return Math.round(value * 100) / 100
+}
+
+function buildMockSalesData(params = {}) {
+  const base = mockData.sales
+  const hasFilters = Boolean(params.region || params.category_id || params.channel)
+
+  if (!hasFilters && (!params.group_by || params.group_by === 'month')) {
+    return base
+  }
+
+  const regionMultiplierMap = {
+    广东: 0.26,
+    北京: 0.2,
+    上海: 0.18,
+    浙江: 0.14,
+    江苏: 0.12,
+  }
+  const categoryMultiplierMap = {
+    1: 0.36,
+    2: 0.3,
+    3: 0.18,
+    4: 0.1,
+    5: 0.06,
+  }
+  const channelMultiplierMap = {
+    PC: 0.34,
+    Mobile: 0.41,
+    Miniprogram: 0.25,
+  }
+  const groupMultiplierMap = {
+    day: 0.18,
+    week: 0.52,
+    month: 1,
+  }
+
+  const regionMultiplier = params.region ? (regionMultiplierMap[params.region] || 0.11) : 1
+  const categoryMultiplier = params.category_id ? (categoryMultiplierMap[params.category_id] || 0.12) : 1
+  const channelMultiplier = params.channel ? (channelMultiplierMap[params.channel] || 0.2) : 1
+  const groupMultiplier = groupMultiplierMap[params.group_by] || 1
+
+  let totalMultiplier = regionMultiplier * categoryMultiplier * channelMultiplier * groupMultiplier
+
+  // 无筛选仅切换粒度时，保留总体规模，只调整序列展示。
+  if (!hasFilters) {
+    totalMultiplier = 1
+  }
+
+  const summary = {
+    ...base.summary,
+    total_sales: roundCurrency(base.summary.total_sales * totalMultiplier),
+    total_orders: Math.max(1, Math.round(base.summary.total_orders * totalMultiplier)),
+    avg_order_value: roundCurrency(base.summary.avg_order_value * (hasFilters ? 0.9 + totalMultiplier * 0.8 : 1)),
+    change_rate: hasFilters ? -0.08 + totalMultiplier * 0.25 : base.summary.change_rate,
+    margin_rate: roundCurrency(Math.max(18, base.summary.margin_rate - (hasFilters ? 4.5 : 0))),
+  }
+
+  const series = base.series.map((item) => ({
+    ...item,
+    sales: roundCurrency(item.sales * totalMultiplier),
+    orders: Math.max(1, Math.round(item.orders * totalMultiplier)),
+  }))
+
+  let byCategory = base.by_category.map((item) => ({
+    ...item,
+    sales: roundCurrency(item.sales * totalMultiplier),
+  }))
+
+  if (params.category_id) {
+    byCategory = byCategory.filter((_, index) => index + 1 === Number(params.category_id))
+  }
+
+  const categoryTotal = byCategory.reduce((sum, item) => sum + item.sales, 0) || 1
+  byCategory = byCategory.map((item) => ({
+    ...item,
+    percentage: item.sales / categoryTotal,
+  }))
+
+  let byRegion = base.by_region.map((item) => ({
+    ...item,
+    sales: roundCurrency(item.sales * totalMultiplier),
+  }))
+
+  if (params.region) {
+    byRegion = byRegion.filter((item) => item.region === params.region)
+  }
+
+  const regionTotal = byRegion.reduce((sum, item) => sum + item.sales, 0) || 1
+  byRegion = byRegion.map((item) => ({
+    ...item,
+    percentage: item.sales / regionTotal,
+  }))
+
+  return {
+    summary,
+    series,
+    by_category: byCategory,
+    by_region: byRegion,
+  }
+}
+
 export const dataAPI = {
   querySales: wrapWithDemo(
     (params) => api.get('/data/sales', { params }),
-    () => ({ success: true, ...mockData.sales })
+    (params) => ({ success: true, ...buildMockSalesData(params) })
   ),
 }
 

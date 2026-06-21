@@ -1,0 +1,47 @@
+@startuml
+skinparam componentStyle rectangle
+skinparam shadowing false
+skinparam packageStyle rectangle
+
+package "前端层（Vue 3）" {
+  [用户浏览器] as Browser
+  [Vue Router\n路由与页面切换] as Router
+  [AppLayout\n整体布局] as Layout
+  [DashboardPage\n仪表盘] as Dashboard
+  [QueryPage\n数据查询] as Query
+  [PredictPage\n预测分析] as Predict
+  [AlertPage\n预警中心] as Alert
+  [ReportPage\n报表中心] as Report
+  [Admin Pages\n用户管理 / 数据源配置] as Admin
+  [API 封装层\naxios + mock] as ApiLayer
+  [Pinia 用户状态] as Store
+  [ECharts 图表组件] as Charts
+}
+
+Browser --> Router : 页面访问
+Router --> Layout : 加载布局
+Layout --> Dashboard
+Layout --> Query
+Layout --> Predict
+Layout --> Alert
+Layout --> Report
+Layout --> Admin
+
+Dashboard --> ApiLayer
+Query --> ApiLayer
+Predict --> ApiLayer
+Alert --> ApiLayer
+Report --> ApiLayer
+Admin --> ApiLayer
+
+Dashboard --> Charts
+Query --> Charts
+Predict --> Charts
+
+ApiLayer --> Store : 读取 token / 用户状态
+
+note bottom of ApiLayer
+统一负责接口调用、
+JWT 携带和 mock 演示模式
+end note
+@enduml

@@ -1,0 +1,102 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+
+class User {
+  +user_id: int
+  +username: string
+  +password_hash: string
+  +role: string
+  +status: int
+  +created_at: datetime
+}
+
+class Category {
+  +category_id: int
+  +category_name: string
+  +parent_id: int
+  +level: int
+}
+
+class Product {
+  +product_id: int
+  +product_name: string
+  +sku_code: string
+  +price: decimal
+  +cost: decimal
+  +stock_quantity: int
+  +status: int
+}
+
+class Customer {
+  +customer_id: int
+  +customer_name: string
+  +gender: string
+  +age_group: string
+  +region: string
+}
+
+class SalesRecord {
+  +record_id: int
+  +quantity: int
+  +total_amount: decimal
+  +order_date: date
+  +region: string
+  +channel: string
+}
+
+class UserProfile {
+  +profile_id: int
+  +value_level: string
+  +avg_order_price: decimal
+  +purchase_frequency: decimal
+  +preferred_category: string
+}
+
+class SalesForecast {
+  +forecast_id: int
+  +forecast_date: date
+  +predicted_quantity: int
+  +confidence_lower: decimal
+  +confidence_upper: decimal
+  +model_type: string
+}
+
+class AlertRule {
+  +rule_id: int
+  +rule_name: string
+  +rule_type: string
+  +threshold: decimal
+  +is_enabled: bool
+}
+
+class AlertLog {
+  +log_id: int
+  +trigger_time: datetime
+  +alert_content: string
+  +anomaly_value: decimal
+  +status: string
+}
+
+class Campaign {
+  +campaign_id: int
+  +campaign_name: string
+  +start_date: date
+  +end_date: date
+  +discount_rate: decimal
+  +campaign_cost: decimal
+}
+
+Category "1" -- "0..*" Product : 包含
+Product "1" -- "0..*" SalesRecord : 产生
+Customer "1" -- "0..*" SalesRecord : 下单
+Customer "1" -- "0..1" UserProfile : 形成画像
+Product "1" -- "0..*" SalesForecast : 预测结果
+Product "1" -- "0..*" AlertRule : 监控对象
+AlertRule "1" -- "0..*" AlertLog : 触发
+Campaign "0..*" .. "0..*" Product : 影响商品
+User .. AlertRule : 配置/管理
+User .. AlertLog : 处理
+User .. SalesForecast : 查看
+User .. UserProfile : 查看
+@enduml

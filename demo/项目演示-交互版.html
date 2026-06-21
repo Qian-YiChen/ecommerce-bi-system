@@ -1,0 +1,1296 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>电商 BI 系统项目演示</title>
+  <style>
+    :root {
+      --bg: #f6f1e8;
+      --panel: #fffdf8;
+      --line: #ddd3c5;
+      --ink: #1f2c33;
+      --sub: #617078;
+      --brand: #1f5967;
+      --brand-2: #d87f41;
+      --brand-3: #3a7d64;
+      --shadow: 0 18px 48px rgba(42, 48, 56, 0.08);
+      --radius: 24px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      font-family: "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 0% 0%, rgba(216, 127, 65, 0.16), transparent 24%),
+        radial-gradient(circle at 100% 10%, rgba(31, 89, 103, 0.10), transparent 28%),
+        linear-gradient(180deg, #f9f5ee 0%, var(--bg) 100%);
+      line-height: 1.65;
+    }
+
+    strong {
+      font-weight: 800;
+      color: #193b46;
+    }
+
+    .shell {
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+      gap: 28px;
+      width: min(1440px, calc(100% - 36px));
+      margin: 0 auto;
+      padding: 24px 0 40px;
+    }
+
+    .sidebar {
+      position: sticky;
+      top: 20px;
+      height: calc(100vh - 40px);
+      background: rgba(255, 253, 248, 0.9);
+      backdrop-filter: blur(14px);
+      border: 1px solid rgba(221, 211, 197, 0.8);
+      border-radius: 28px;
+      box-shadow: var(--shadow);
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .brand {
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 18px;
+    }
+
+    .brand small {
+      display: block;
+      color: var(--brand-2);
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      margin-bottom: 8px;
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.2;
+    }
+
+    .brand p {
+      margin: 10px 0 0;
+      color: var(--sub);
+      font-size: 14px;
+    }
+
+    .nav {
+      display: grid;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .nav a {
+      text-decoration: none;
+      color: var(--ink);
+      padding: 12px 14px;
+      border-radius: 16px;
+      transition: 180ms ease;
+      border: 1px solid transparent;
+      background: transparent;
+      font-weight: 600;
+    }
+
+    .nav a:hover {
+      background: #f4efe5;
+      border-color: #eadfce;
+    }
+
+    .nav a.active {
+      background: linear-gradient(135deg, rgba(31, 89, 103, 0.12), rgba(216, 127, 65, 0.10));
+      border-color: rgba(31, 89, 103, 0.18);
+      color: var(--brand);
+    }
+
+    .sidebar-note {
+      margin-top: auto;
+      padding: 16px;
+      background: linear-gradient(180deg, #fbf8f1, #f3ede2);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      color: var(--sub);
+      font-size: 13px;
+    }
+
+    .content {
+      display: grid;
+      gap: 24px;
+    }
+
+    section {
+      background: var(--panel);
+      border: 1px solid rgba(221, 211, 197, 0.72);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 28px;
+      scroll-margin-top: 24px;
+    }
+
+    .hero {
+      overflow: hidden;
+      position: relative;
+      background: linear-gradient(145deg, #fffefb 0%, #f6f0e5 100%);
+      color: var(--ink);
+      min-height: 280px;
+      border-color: rgba(221, 211, 197, 0.82);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -90px;
+      top: -70px;
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      background: rgba(216, 127, 65, 0.08);
+    }
+
+    .hero small {
+      display: inline-block;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      opacity: 1;
+      margin-bottom: 12px;
+      font-weight: 700;
+      color: var(--brand-2);
+    }
+
+    .hero h2 {
+      margin: 0;
+      font-size: clamp(30px, 4vw, 50px);
+      line-height: 1.08;
+      max-width: 900px;
+    }
+
+    .hero p {
+      max-width: 780px;
+      margin: 16px 0 0;
+      font-size: 17px;
+      color: var(--sub);
+    }
+
+    .stats {
+      margin-top: 26px;
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 14px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .stat {
+      background: rgba(255, 255, 255, 0.82);
+      border: 1px solid rgba(221, 211, 197, 0.92);
+      border-radius: 20px;
+      padding: 16px;
+      backdrop-filter: blur(4px);
+      cursor: pointer;
+      transition: 180ms ease;
+    }
+
+    .stat:hover,
+    .stat.active {
+      transform: translateY(-2px);
+      background: #fff;
+      border-color: rgba(31, 89, 103, 0.24);
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 28px;
+      margin-bottom: 6px;
+      color: var(--brand);
+    }
+
+    .stat-preview {
+      display: none;
+      margin-top: 18px;
+      position: relative;
+      z-index: 1;
+      background: linear-gradient(180deg, #fffefc, #f8f2e8);
+      border: 1px solid rgba(221, 211, 197, 0.92);
+      border-radius: 22px;
+      padding: 18px;
+      color: var(--ink);
+    }
+
+    .stat-preview.open {
+      display: block;
+    }
+
+    .stat-preview h4 {
+      margin: 0 0 10px;
+      font-size: 18px;
+    }
+
+    .mini-gallery {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 12px;
+    }
+
+    .mini-gallery img {
+      width: 100%;
+      aspect-ratio: 1.2 / 0.9;
+      object-fit: cover;
+      border-radius: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .code-card {
+      background: linear-gradient(180deg, #fffefb, #f5efe3);
+      color: var(--ink);
+      border: 1px solid #e3d6c3;
+      border-radius: 14px;
+      padding: 14px;
+      overflow: auto;
+      margin-top: 12px;
+      font-family: "SFMono-Regular", Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+
+    h3 {
+      margin: 0 0 10px;
+      font-size: 28px;
+    }
+
+    .intro {
+      color: var(--sub);
+      margin: 0 0 18px;
+      font-size: 15px;
+    }
+
+    .grid-2,
+    .grid-3 {
+      display: grid;
+      gap: 18px;
+    }
+
+    .grid-2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .grid-3 {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .card {
+      background: linear-gradient(180deg, #fffefb, #f9f4eb);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 20px;
+    }
+
+    .card h4 {
+      margin: 0 0 8px;
+      font-size: 20px;
+      color: var(--brand);
+    }
+
+    ul.flat {
+      margin: 10px 0 0;
+      padding-left: 18px;
+    }
+
+    .scheme-layout {
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+      gap: 20px;
+      align-items: start;
+    }
+
+    .layer-tabs,
+    .feature-tabs {
+      display: grid;
+      gap: 10px;
+    }
+
+    .layer-tab,
+    .feature-tab {
+      width: 100%;
+      text-align: left;
+      border: 1px solid var(--line);
+      background: #fff;
+      color: var(--ink);
+      border-radius: 16px;
+      padding: 14px 16px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 180ms ease;
+    }
+
+    .layer-tab:hover,
+    .feature-tab:hover {
+      background: #f4efe6;
+    }
+
+    .layer-tab.active,
+    .feature-tab.active {
+      background: linear-gradient(135deg, rgba(31, 89, 103, 0.12), rgba(216, 127, 65, 0.12));
+      border-color: rgba(31, 89, 103, 0.24);
+      color: var(--brand);
+    }
+
+    .layer-panel {
+      display: none;
+      background: linear-gradient(180deg, #fffeff, #f8f3ea);
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 20px;
+    }
+
+    .layer-panel.active {
+      display: block;
+    }
+
+    .layer-panel img,
+    .feature-panel img {
+      width: 100%;
+      display: block;
+      border-radius: 16px;
+      border: 1px solid #e8dece;
+      cursor: zoom-in;
+    }
+
+    .uml-image {
+      margin-top: 14px;
+      background: #fff;
+      border: 1px dashed #cebfa8;
+      border-radius: 18px;
+      padding: 14px;
+    }
+
+    .uml-image h5 {
+      margin: 0 0 10px;
+      color: var(--brand);
+      font-size: 14px;
+    }
+
+    .uml-image img {
+      width: 100%;
+      display: block;
+      border-radius: 12px;
+      border: 1px solid #e8dece;
+      background: #fbf7f0;
+    }
+
+    .feature-shell {
+      display: grid;
+      gap: 18px;
+    }
+
+    .feature-tabs {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+
+    .feature-panel {
+      display: none;
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      padding: 18px;
+    }
+
+    .feature-panel.active {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .feature-copy {
+      background: #faf5ec;
+      border: 1px solid #ebe1d2;
+      border-radius: 18px;
+      padding: 18px;
+    }
+
+    .feature-copy h4 {
+      margin: 0 0 10px;
+      color: var(--brand);
+      font-size: 22px;
+    }
+
+    .member-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .member-card {
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, #fffefb, #f7f1e7);
+      border-radius: 18px;
+      padding: 18px;
+      transition: 180ms ease;
+    }
+
+    .member-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 14px 32px rgba(48, 56, 64, 0.08);
+      border-color: rgba(31, 89, 103, 0.24);
+    }
+
+    .member-card h4 {
+      margin: 0 0 6px;
+      color: var(--brand);
+      font-size: 18px;
+    }
+
+    .role {
+      color: var(--brand-2);
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+
+    .management-wrap {
+      display: grid;
+      gap: 18px;
+    }
+
+    .gantt {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      overflow: auto;
+      background: #fff;
+    }
+
+    .gantt-header,
+    .gantt-row {
+      display: grid;
+      grid-template-columns: 200px repeat(14, minmax(0, 1fr));
+      min-width: 820px;
+    }
+
+    .gantt-header {
+      background: #f6f0e6;
+      color: var(--brand);
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .gantt-header div,
+    .gantt-row div {
+      padding: 10px 8px;
+      border-right: 1px solid #eadfce;
+    }
+
+    .gantt-row {
+      border-top: 1px solid #eadfce;
+      font-size: 13px;
+    }
+
+    .gantt-row .task {
+      background: #fcfaf5;
+      font-weight: 700;
+    }
+
+    .gantt-cell {
+      min-height: 36px;
+    }
+
+    .bar {
+      height: 16px;
+      width: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--brand), #2c7967);
+      margin-top: 2px;
+    }
+
+    .bar.soft {
+      background: linear-gradient(90deg, #c87942, #dfa05c);
+    }
+
+    .milestones {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .milestone {
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, #fffefb, #f7f1e8);
+      border-radius: 18px;
+      padding: 16px;
+      cursor: pointer;
+      transition: 180ms ease;
+      min-height: 108px;
+    }
+
+    .milestone:hover,
+    .milestone.active {
+      border-color: rgba(31, 89, 103, 0.26);
+      box-shadow: 0 12px 30px rgba(44, 52, 60, 0.08);
+    }
+
+    .milestone strong {
+      display: block;
+      color: var(--brand);
+      margin-bottom: 4px;
+    }
+
+    .milestone-detail {
+      border: 1px solid #e6dbc9;
+      border-radius: 18px;
+      background: #fcf8f1;
+      padding: 18px;
+      color: var(--sub);
+      min-height: 92px;
+    }
+
+    .summary-box {
+      background: linear-gradient(135deg, rgba(31, 89, 103, 0.08), rgba(216, 127, 65, 0.08));
+      border: 1px solid rgba(31, 89, 103, 0.14);
+      border-radius: 20px;
+      padding: 22px;
+      font-size: 16px;
+    }
+
+    .feelings-grid {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .feeling-card {
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, #fffefb, #f7f1e7);
+      border-radius: 18px;
+      padding: 18px;
+      cursor: pointer;
+      transition: 180ms ease;
+    }
+
+    .feeling-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 14px 32px rgba(48, 56, 64, 0.08);
+      border-color: rgba(31, 89, 103, 0.24);
+    }
+
+    .feeling-card h4 {
+      margin: 0 0 6px;
+      color: var(--brand);
+      font-size: 18px;
+    }
+
+    .feeling-role {
+      color: var(--brand-2);
+      font-weight: 700;
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+
+    .feeling-detail {
+      margin-top: 16px;
+      border: 1px solid #e6dbc9;
+      border-radius: 18px;
+      background: #fcf8f1;
+      padding: 18px;
+      color: var(--sub);
+      min-height: 170px;
+      max-height: 220px;
+      overflow: auto;
+    }
+
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(16, 20, 24, 0.84);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+      z-index: 1000;
+    }
+
+    .lightbox.open {
+      display: flex;
+    }
+
+    .lightbox img {
+      max-width: min(1200px, 96vw);
+      max-height: 92vh;
+      border-radius: 18px;
+      box-shadow: 0 26px 60px rgba(0, 0, 0, 0.32);
+      background: #fff;
+    }
+
+    .lightbox-close {
+      position: fixed;
+      top: 18px;
+      right: 22px;
+      width: 44px;
+      height: 44px;
+      border: none;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    @media (max-width: 1180px) {
+      .shell {
+        grid-template-columns: 1fr;
+      }
+
+      .sidebar {
+        position: static;
+        height: auto;
+      }
+
+      .stats,
+      .member-grid,
+      .grid-3,
+      .feature-tabs,
+      .grid-2,
+      .scheme-layout,
+      .milestones,
+      .feelings-grid,
+      .mini-gallery {
+        grid-template-columns: 1fr;
+      }
+
+      .feature-panel.active {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="sidebar">
+      <div class="brand">
+        <small>Software Engineering</small>
+        <h1>电商 BI 系统项目演示</h1>
+        <p>支持目录跳转、模块切换、图片放大、指标卡展开和里程碑联动。</p>
+      </div>
+
+      <nav class="nav" id="nav">
+        <a href="#home">首页</a>
+        <a href="#background">项目背景</a>
+        <a href="#scheme">技术方案</a>
+        <a href="#features">软件功能</a>
+        <a href="#team">任务分工</a>
+        <a href="#management">项目管理方式</a>
+        <a href="#reflection">成员感想</a>
+        <a href="#summary">总结</a>
+      </nav>
+
+      <div class="sidebar-note">
+        推荐阅读路径：
+        项目背景 → 技术方案 → 软件功能 → 任务分工 → 项目管理方式 → 成员感想 → 总结
+      </div>
+    </aside>
+
+    <main class="content">
+      <section class="hero" id="home">
+        <small>软件工程期末项目</small>
+        <h2>基于 AI 智能的电商商品销售分析与预测系统</h2>
+        <p>
+          本项目面向电商企业内部运营与管理场景，围绕<strong>多维销售分析</strong>、
+          <strong>销量预测</strong>、<strong>库存建议</strong>、
+          <strong>异常预警</strong>、<strong>报表导出</strong>和<strong>后台管理</strong>，
+          设计并实现了一个前后端分离的商业智能平台原型。
+        </p>
+        <div class="stats">
+          <div class="stat active" data-preview="preview-pages">
+            <strong>8</strong>
+            前端页面
+          </div>
+          <div class="stat" data-preview="preview-api">
+            <strong>20+</strong>
+            后端接口
+          </div>
+          <div class="stat" data-preview="preview-db">
+            <strong>10</strong>
+            核心数据表
+          </div>
+          <div class="stat" data-preview="preview-test">
+            <strong>96/96</strong>
+            集成测试
+          </div>
+        </div>
+        <div class="stat-preview open" id="preview-pages">
+          <h4>前端页面概览</h4>
+          <div class="mini-gallery">
+            <img src="./演示用图/登录界面.png" alt="登录界面缩略图" />
+            <img src="./演示用图/仪表盘.png" alt="仪表盘缩略图" />
+            <img src="./演示用图/数据查询.png" alt="数据查询缩略图" />
+            <img src="./演示用图/预测分析.png" alt="预测分析缩略图" />
+          </div>
+        </div>
+        <div class="stat-preview" id="preview-api">
+          <h4>后端接口片段</h4>
+          <div class="code-card">认证：POST /api/auth/login
+数据：GET /api/data/sales
+预测：GET /api/predict/sales
+预警：POST /api/alert/scan
+管理：GET /api/admin/users
+画像：GET /api/profile/users</div>
+        </div>
+        <div class="stat-preview" id="preview-db">
+          <h4>核心数据表概览</h4>
+          <div class="code-card">user
+category
+product
+customer
+sales_record
+user_profile
+sales_forecast
+alert_rule
+alert_log
+campaign</div>
+        </div>
+        <div class="stat-preview" id="preview-test">
+          <h4>测试结果片段</h4>
+          <div class="code-card">test_auth_integration.py     # 36 项
+test_predict_alert_integration.py # 60 项
+
+总计：96/96 通过
+
+覆盖内容：
+- 登录注册
+- JWT 鉴权
+- 销量预测
+- 预警规则
+- 日志处理</div>
+        </div>
+      </section>
+
+      <section id="background">
+        <h3>项目背景</h3>
+        <p class="intro">回答“为什么要做这个系统”。</p>
+        <div class="grid-3">
+          <div class="card">
+            <h4>业务痛点</h4>
+            <ul class="flat">
+              <li>电商平台每天产生大量销售、商品、客户和库存数据。</li>
+              <li>单纯依赖人工查看报表，<strong>分析效率低，发现问题不够及时</strong>。</li>
+              <li>传统系统偏重数据记录，<strong>缺少预测和预警能力</strong>。</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>项目目标</h4>
+            <ul class="flat">
+              <li>实现<strong>多维度销售查询</strong>与可视化分析。</li>
+              <li>实现<strong>销量预测</strong>与<strong>库存补货建议</strong>。</li>
+              <li>实现<strong>异常检测</strong>、<strong>预警管理</strong>和<strong>报表输出</strong>。</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h4>应用价值</h4>
+            <ul class="flat">
+              <li>帮助运营经理<strong>更快掌握经营状态</strong>。</li>
+              <li>帮助分析师<strong>从历史数据中发现趋势</strong>。</li>
+              <li>帮助管理者进行<strong>数据驱动决策</strong>。</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="scheme">
+        <h3>技术方案</h3>
+        <p class="intro">采用前后端分离架构，前端负责交互展示，后端负责业务逻辑，数据库和算法层支撑分析与预测。</p>
+        <div class="scheme-layout">
+          <div class="layer-tabs">
+            <button class="layer-tab active" data-layer="layer-arch">总体架构</button>
+            <button class="layer-tab" data-layer="layer-usecase">用例视角</button>
+            <button class="layer-tab" data-layer="layer-front">前端层</button>
+            <button class="layer-tab" data-layer="layer-back">后端层</button>
+            <button class="layer-tab" data-layer="layer-data">数据与算法层</button>
+            <button class="layer-tab" data-layer="layer-er">数据模型</button>
+          </div>
+
+          <div>
+            <div class="layer-panel active" id="layer-arch">
+              <img src="./演示用图/构件图.png" alt="构件图" class="zoomable" />
+              <ul class="flat">
+                <li>系统采用<strong>前后端分离结构</strong>，前端通过 HTTP/JSON 调用 Flask 后端接口。</li>
+                <li>后端负责<strong>认证、查询、预测、预警、报表和管理</strong>功能。</li>
+                <li>机器学习模块负责<strong>销量预测、库存建议与异常检测</strong>。</li>
+              </ul>
+            </div>
+
+            <div class="layer-panel" id="layer-usecase">
+              <img src="./演示用图/用例图UML.png" alt="用例图" class="zoomable" />
+              <ul class="flat">
+                <li>从需求视角看，系统面向<strong>电商运营经理、数据分析师、高层管理者、系统管理员</strong>四类角色。</li>
+                <li>核心能力覆盖<strong>数据查询、销量预测、库存建议、异常预警、报表导出和权限管理</strong>。</li>
+                <li>这一层更适合说明“系统为谁服务、解决什么问题”。</li>
+              </ul>
+            </div>
+
+            <div class="layer-panel" id="layer-front">
+              <ul class="flat">
+                <li>前端基于 <strong>Vue 3 + Vite + Element Plus + ECharts</strong> 实现。</li>
+                <li>负责<strong>页面展示、筛选交互、图表渲染</strong>与演示模式支持。</li>
+                <li>核心页面包括仪表盘、查询、预测、预警、报表和后台管理页面。</li>
+              </ul>
+              <div class="uml-image">
+                <h5>建议配图：13-frontend-layer.puml 导出图</h5>
+                <img src="./演示用图/前端层.png" alt="前端层 UML 图" class="zoomable" />
+              </div>
+            </div>
+
+            <div class="layer-panel" id="layer-back">
+              <ul class="flat">
+                <li>后端基于 <strong>Flask</strong> 实现，提供认证、查询、预测、预警、报表、管理等接口。</li>
+                <li>通过 <strong>JWT</strong> 实现登录状态维护和角色权限控制。</li>
+                <li>通过 <strong>APScheduler</strong> 实现定时预警扫描。</li>
+              </ul>
+              <div class="uml-image">
+                <h5>建议配图：14-backend-layer.puml 导出图</h5>
+                <img src="./演示用图/后端层.png" alt="后端层 UML 图" class="zoomable" />
+              </div>
+            </div>
+
+            <div class="layer-panel" id="layer-data">
+              <ul class="flat">
+                <li>数据库采用 <strong>MySQL</strong>，围绕商品、客户、销售记录、预测结果、预警规则等建立 10 张核心表。</li>
+                <li>算法层基于 <strong>scikit-learn、pandas、numpy</strong> 实现销量预测、库存建议和异常检测。</li>
+                <li>训练模型文件与业务数据共同支撑系统智能分析能力。</li>
+              </ul>
+              <div class="uml-image">
+                <h5>建议配图：15-data-ml-layer.puml 导出图</h5>
+                <img src="./演示用图/数据算法层.png" alt="数据与算法层 UML 图" class="zoomable" />
+              </div>
+            </div>
+
+            <div class="layer-panel" id="layer-er">
+              <img src="./演示用图/ER图.png" alt="ER图" class="zoomable" />
+              <ul class="flat">
+                <li>从数据视角看，系统围绕<strong>商品、客户、销售记录、预测结果、预警规则</strong>等核心实体组织。</li>
+                <li>ER 图说明了<strong>数据表之间的关联关系</strong>，支撑分析、预测和预警功能。</li>
+                <li>这一层更适合说明“系统的数据基础是如何设计的”。</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="features">
+        <h3>软件功能</h3>
+        <p class="intro">通过标签切换展示系统的核心功能页面与对应说明。</p>
+
+        <div class="feature-shell">
+          <div class="feature-tabs">
+            <button class="feature-tab active" data-feature="feature-login">登录</button>
+            <button class="feature-tab" data-feature="feature-dashboard">仪表盘</button>
+            <button class="feature-tab" data-feature="feature-query">数据查询</button>
+            <button class="feature-tab" data-feature="feature-predict">预测分析</button>
+            <button class="feature-tab" data-feature="feature-alert">预警中心</button>
+            <button class="feature-tab" data-feature="feature-report">报表 / 管理</button>
+          </div>
+
+          <div class="feature-panel active" id="feature-login">
+            <img src="./演示用图/登录界面.png" alt="登录界面" class="zoomable" />
+            <div class="feature-copy">
+              <h4>登录与权限控制</h4>
+              <p>系统提供登录页面作为统一入口，用户通过账号密码登录后进入系统。</p>
+              <ul class="flat">
+                <li>支持 <strong>JWT 登录认证</strong>。</li>
+                <li>支持按<strong>角色进行权限控制</strong>。</li>
+                <li>支持演示模式，便于离线浏览和页面调试。</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="feature-panel" id="feature-dashboard">
+            <img src="./演示用图/仪表盘.png" alt="仪表盘" class="zoomable" />
+            <div class="feature-copy">
+              <h4>仪表盘与经营概览</h4>
+              <p>仪表盘用于展示系统首页的经营状态，帮助用户快速了解业务总体情况。</p>
+              <ul class="flat">
+                <li>展示<strong>总销售额、订单量、客单价</strong>等指标。</li>
+                <li>展示<strong>销售趋势图和品类分布图</strong>。</li>
+                <li>展示<strong>待处理预警概览</strong>。</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="feature-panel" id="feature-query">
+            <img src="./演示用图/数据查询.png" alt="数据查询" class="zoomable" />
+            <div class="feature-copy">
+              <h4>多维销售数据查询</h4>
+              <p>系统支持按业务维度对销售数据进行灵活筛选，体现 BI 分析能力。</p>
+              <ul class="flat">
+                <li>支持按<strong>时间、地区、品类、渠道、粒度</strong>查询。</li>
+                <li>结果以<strong>图表和表格</strong>形式展示。</li>
+                <li>方便进行<strong>趋势分析和结构分析</strong>。</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="feature-panel" id="feature-predict">
+            <img src="./演示用图/预测分析.png" alt="预测分析" class="zoomable" />
+            <div class="feature-copy">
+              <h4>销量预测与库存建议</h4>
+              <p>系统集成了机器学习模块，对未来销量进行预测，并给出库存补货建议。</p>
+              <ul class="flat">
+                <li>预测未来<strong>销量变化趋势</strong>。</li>
+                <li>结合库存数据生成<strong>补货建议</strong>。</li>
+                <li>体现系统的<strong>智能分析能力</strong>。</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="feature-panel" id="feature-alert">
+            <img src="./演示用图/预警中心.png" alt="预警中心" class="zoomable" />
+            <div class="feature-copy">
+              <h4>异常预警与风险监控</h4>
+              <p>系统支持对异常销售和库存风险进行检测、记录与管理。</p>
+              <ul class="flat">
+                <li>展示<strong>告警内容、严重程度和处理状态</strong>。</li>
+                <li>支持<strong>规则配置和定时扫描</strong>。</li>
+                <li>帮助管理者<strong>及时发现异常业务情况</strong>。</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="feature-panel" id="feature-report">
+            <img src="./演示用图/报表生成.png" alt="报表生成" class="zoomable" />
+            <div class="feature-copy">
+              <h4>报表输出与后台管理</h4>
+              <p>系统支持分析结果导出，并提供管理员视角的后台管理能力。</p>
+              <ul class="flat">
+                <li>支持<strong>报表生成与导出</strong>。</li>
+                <li>支持<strong>系统管理、用户管理与数据源状态查看</strong>。</li>
+                <li>形成了较完整的软件系统结构。</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="team">
+        <h3>任务分工</h3>
+        <p class="intro">采用模块化分工方式推进项目，各成员围绕前端、后端、数据库、算法和展示测试协作开发。</p>
+        <div class="member-grid">
+          <div class="member-card">
+            <h4>严辰乐</h4>
+            <div class="role">组长 / 后端核心 / 项目管理</div>
+            <ul class="flat">
+              <li>系统架构设计</li>
+              <li>JWT 认证与权限控制</li>
+              <li>预测与预警集成</li>
+              <li>进度管理与文档把关</li>
+            </ul>
+          </div>
+          <div class="member-card">
+            <h4>苏文韬</h4>
+            <div class="role">后端数据 / 数据库</div>
+            <ul class="flat">
+              <li>数据库建模与脚本</li>
+              <li>查询与报表接口</li>
+              <li>随机数据生成脚本</li>
+            </ul>
+          </div>
+          <div class="member-card">
+            <h4>闫维岳</h4>
+            <div class="role">前端管理页 / 测试 / 展示</div>
+            <ul class="flat">
+              <li>登录、预警、管理页面</li>
+              <li>联调测试</li>
+              <li>展示材料整理</li>
+            </ul>
+          </div>
+          <div class="member-card">
+            <h4>薛淞</h4>
+            <div class="role">ML 算法</div>
+            <ul class="flat">
+              <li>销量预测</li>
+              <li>库存建议</li>
+              <li>异常检测</li>
+              <li>用户画像</li>
+            </ul>
+          </div>
+          <div class="member-card">
+            <h4>姚凯曦</h4>
+            <div class="role">前端核心页面</div>
+            <ul class="flat">
+              <li>仪表盘页面</li>
+              <li>查询、预测、报表页面</li>
+              <li>前端展示逻辑</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="management">
+        <h3>项目管理方式</h3>
+        <p class="intro">项目周期约两周，采用分阶段推进、里程碑控制、GitHub 协作和风险管理相结合的方式。</p>
+
+        <div class="management-wrap">
+          <div class="gantt">
+            <div class="gantt-header">
+              <div>任务 / 时间</div>
+              <div>D1</div><div>D2</div><div>D3</div><div>D4</div><div>D5</div><div>D6</div><div>D7</div>
+              <div>D8</div><div>D9</div><div>D10</div><div>D11</div><div>D12</div><div>D13</div><div>D14</div>
+            </div>
+
+            <div class="gantt-row">
+              <div class="task">需求分析文档</div>
+              <div class="gantt-cell"><div class="bar"></div></div><div class="gantt-cell"><div class="bar"></div></div><div class="gantt-cell"><div class="bar"></div></div>
+              <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+            </div>
+
+            <div class="gantt-row">
+              <div class="task">软件设计文档</div>
+              <div class="gantt-cell"><div class="bar"></div></div><div class="gantt-cell"><div class="bar"></div></div><div class="gantt-cell"><div class="bar"></div></div>
+              <div class="gantt-cell"><div class="bar"></div></div><div class="gantt-cell"><div class="bar"></div></div>
+              <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+            </div>
+
+            <div class="gantt-row">
+              <div class="task">后端框架与认证</div>
+              <div class="gantt-cell"><div class="bar"></div></div><div class="gantt-cell"><div class="bar"></div></div><div class="gantt-cell"><div class="bar"></div></div>
+              <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+            </div>
+
+            <div class="gantt-row">
+              <div class="task">数据库建模与脚本</div>
+              <div class="gantt-cell"><div class="bar"></div></div><div class="gantt-cell"><div class="bar"></div></div><div class="gantt-cell"><div class="bar"></div></div>
+              <div class="gantt-cell"><div class="bar"></div></div>
+              <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+            </div>
+
+            <div class="gantt-row">
+              <div class="task">前端核心页面</div>
+              <div></div><div></div><div></div>
+              <div class="gantt-cell"><div class="bar"></div></div><div class="gantt-cell"><div class="bar"></div></div><div class="gantt-cell"><div class="bar"></div></div>
+              <div class="gantt-cell"><div class="bar"></div></div><div class="gantt-cell"><div class="bar"></div></div>
+              <div></div><div></div><div></div><div></div><div></div><div></div>
+            </div>
+
+            <div class="gantt-row">
+              <div class="task">预测与预警模块</div>
+              <div></div><div></div><div></div><div></div>
+              <div class="gantt-cell"><div class="bar"></div></div><div class="gantt-cell"><div class="bar"></div></div>
+              <div class="gantt-cell"><div class="bar"></div></div><div class="gantt-cell"><div class="bar"></div></div>
+              <div></div><div></div><div></div><div></div><div></div><div></div>
+            </div>
+
+            <div class="gantt-row">
+              <div class="task">测试与修复</div>
+              <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+              <div class="gantt-cell"><div class="bar soft"></div></div><div class="gantt-cell"><div class="bar soft"></div></div>
+              <div class="gantt-cell"><div class="bar soft"></div></div><div class="gantt-cell"><div class="bar soft"></div></div>
+              <div></div><div></div>
+            </div>
+
+            <div class="gantt-row">
+              <div class="task">演示材料与最终提交</div>
+              <div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div>
+              <div class="gantt-cell"><div class="bar soft"></div></div><div class="gantt-cell"><div class="bar soft"></div></div>
+              <div class="gantt-cell"><div class="bar soft"></div></div><div class="gantt-cell"><div class="bar soft"></div></div>
+            </div>
+          </div>
+
+          <div class="milestones" id="milestones">
+            <div class="milestone active" data-detail="M1：需求分析定稿。完成需求文档梳理，统一系统目标、角色和核心用例。">
+              <strong>M1 需求分析定稿</strong>
+              Day 3
+            </div>
+            <div class="milestone" data-detail="M2：代码骨架就绪。前端可渲染、后端可启动、机器学习模块可输出基础结果。">
+              <strong>M2 代码骨架就绪</strong>
+              Day 3
+            </div>
+            <div class="milestone" data-detail="M3：P0 功能完成。销售查询、销量预测、库存建议、异常预警、报表导出等核心功能跑通。">
+              <strong>M3 P0 功能完成</strong>
+              Day 8
+            </div>
+            <div class="milestone" data-detail="M4：测试完成。进行联调与功能验证，清理核心缺陷，保证系统稳定性。">
+              <strong>M4 测试完成</strong>
+              Day 12
+            </div>
+            <div class="milestone" data-detail="M5 / M6：演示材料准备完毕并完成最终提交，包括展示页、截图、文档和代码。">
+              <strong>M5-M6 提交完成</strong>
+              Day 12-14
+            </div>
+          </div>
+          <div class="milestone-detail" id="milestone-detail">
+            M1：需求分析定稿。完成需求文档梳理，统一系统目标、角色和核心用例。
+          </div>
+        </div>
+      </section>
+
+      <section id="reflection">
+        <h3>成员感想</h3>
+        <p class="intro">点击成员卡片可查看个人体会摘要，保留约 150 字展示，其余内容以省略号处理。</p>
+        <div class="feelings-grid" id="feelings-grid">
+          <div class="feeling-card active" data-detail="待补充：组长的课程实践心得将在后续统一加入。当前先保留占位，用于最终展示严辰乐在系统架构、后端核心实现、项目管理和文档统筹方面的个人体会与总结......">
+            <h4>严辰乐</h4>
+            <div class="feeling-role">组长 / 后端核心 / 项目管理</div>
+            当前为占位卡片，后续补入组长关于架构设计、进度统筹与联调整合的感想。
+          </div>
+          <div class="feeling-card" data-detail="本次课程实践中，我主要负责数据库设计和后端数据层开发，包括 10 张业务表的 DDL、数据库服务模块、多维度销售查询、报表导出和随机数据脚本。最大的收获来自数据库设计的迭代过程，我深刻理解了数据库是整个系统地基这一点，也体会到接口先行、尽早对接的重要性。通过补充异常回滚和参数校验，我进一步认识到工程化开发与“能跑就行”的区别......">
+            <h4>苏文韬</h4>
+            <div class="feeling-role">数据库设计 / 后端数据层</div>
+            负责数据库和查询导出接口，体会到接口先行与可靠性优先的重要性。
+          </div>
+          <div class="feeling-card" data-detail="在这次项目里，我更强烈地感受到，虽然现在有 AI 可以帮助页面设计、测试用例整理和展示内容生成，但这些内容最终仍然是面向人的，因此视觉表达和展示逻辑仍然需要人工把握。相比传统的 PPT，HTML 的优势在于它具有更强的交互性，可以根据讲解逻辑进行切换、放大、跳转和动态展示，也更容易和图片、图表、代码片段等内容结合。通过这次实践，我体会到 AI 提升了效率，但最终的判断、取舍和呈现方式仍然离不开人的审美和工程意识......">
+            <h4>闫维岳</h4>
+            <div class="feeling-role">展示整理 / 前端协作</div>
+            关注展示表达、AI 辅助与 HTML 交互相对传统 PPT 的优势。
+          </div>
+          <div class="feeling-card" data-detail="在本次电商任务中，我承担智能预测与数据分析模块的开发工作。项目早期我们采用“基线先行、迭代优化”的策略，我先基于公开数据集和线性回归模型搭建了预测骨架，使得数据库落地后能快速跑通全流程。在开发过程中，我重点处理了特征工程和模型评估问题，并完成了库存建议、用户画像和营销 ROI 等辅助模块。通过这次实践，我更加理解了算法工程师不仅要调参，更要理解业务逻辑、设计稳健的数据管道与模块接口......">
+            <h4>薛淞</h4>
+            <div class="feeling-role">ML 算法</div>
+            负责预测与分析模块，更强调算法落地中的业务理解与工程化思维。
+          </div>
+          <div class="feeling-card" data-detail="在这次软件工程课程实践中，我负责前端管理页面开发、系统测试和相关文档编写。通过实现登录页、用户管理页、预警展示页和数据源配置页，我更深入理解了 Vue 组件组织、接口对接和工程化前端开发流程。测试工作也让我认识到，完善的测试用例设计对于保证软件质量至关重要。通过团队协作，我进一步体会到了接口约定、进度同步和分工配合的重要性......">
+            <h4>姚凯曦</h4>
+            <div class="feeling-role">前端开发（管理页面）+ 测试 + 文档</div>
+            负责管理页面、测试与文档，强调工程化前端与测试的重要性。
+          </div>
+        </div>
+        <div class="feeling-detail" id="feeling-detail">
+          待补充：组长的课程实践心得将在后续统一加入。当前先保留占位，用于最终展示严辰乐在系统架构、后端核心实现、项目管理和文档统筹方面的个人体会与总结......
+        </div>
+      </section>
+
+      <section id="summary">
+        <h3>总结</h3>
+        <p class="intro">以一句话收束系统价值和软件工程过程价值。</p>
+        <div class="summary-box">
+          本项目围绕电商运营场景，完成了一个集<strong>数据分析</strong>、<strong>销量预测</strong>、
+          <strong>库存建议</strong>、<strong>异常预警</strong>和<strong>报表导出</strong>于一体的 BI 系统原型。
+          它不仅实现了核心功能，也体现了<strong>需求分析、系统设计、模块分工、版本协作和项目管理</strong>
+          等软件工程过程。后续如果继续迭代，可以进一步接入真实数据源，并优化预测模型和自动化管理能力。
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="lightbox" id="lightbox">
+    <button class="lightbox-close" id="lightbox-close" aria-label="关闭">×</button>
+    <img id="lightbox-image" alt="放大预览" />
+  </div>
+
+  <script>
+    const navLinks = [...document.querySelectorAll('#nav a')];
+    const sections = navLinks
+      .map((link) => document.querySelector(link.getAttribute('href')))
+      .filter(Boolean);
+
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting) return;
+        const id = '#' + entry.target.id;
+        navLinks.forEach((link) => {
+          link.classList.toggle('active', link.getAttribute('href') === id);
+        });
+      });
+    }, { rootMargin: '-25% 0px -55% 0px', threshold: 0.01 });
+
+    sections.forEach((section) => observer.observe(section));
+
+    const statCards = document.querySelectorAll('.stat');
+    const statPreviews = document.querySelectorAll('.stat-preview');
+    statCards.forEach((card) => {
+      card.addEventListener('click', () => {
+        const target = card.dataset.preview;
+        statCards.forEach((node) => node.classList.remove('active'));
+        statPreviews.forEach((node) => node.classList.remove('open'));
+        card.classList.add('active');
+        document.getElementById(target).classList.add('open');
+      });
+    });
+
+    const layerTabs = document.querySelectorAll('.layer-tab');
+    const layerPanels = document.querySelectorAll('.layer-panel');
+    layerTabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        const id = tab.dataset.layer;
+        layerTabs.forEach((btn) => btn.classList.remove('active'));
+        layerPanels.forEach((panel) => panel.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById(id).classList.add('active');
+      });
+    });
+
+    const featureTabs = document.querySelectorAll('.feature-tab');
+    const featurePanels = document.querySelectorAll('.feature-panel');
+    featureTabs.forEach((tab) => {
+      tab.addEventListener('click', () => {
+        const id = tab.dataset.feature;
+        featureTabs.forEach((btn) => btn.classList.remove('active'));
+        featurePanels.forEach((panel) => panel.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById(id).classList.add('active');
+      });
+    });
+
+    const milestones = document.querySelectorAll('.milestone');
+    const milestoneDetail = document.getElementById('milestone-detail');
+    milestones.forEach((item) => {
+      item.addEventListener('click', () => {
+        milestones.forEach((node) => node.classList.remove('active'));
+        item.classList.add('active');
+        milestoneDetail.textContent = item.dataset.detail;
+      });
+    });
+
+    const feelingCards = document.querySelectorAll('.feeling-card');
+    const feelingDetail = document.getElementById('feeling-detail');
+    feelingCards.forEach((item) => {
+      item.addEventListener('click', () => {
+        feelingCards.forEach((node) => node.classList.remove('active'));
+        item.classList.add('active');
+        feelingDetail.textContent = item.dataset.detail;
+      });
+    });
+
+    const lightbox = document.getElementById('lightbox');
+    const lightboxImage = document.getElementById('lightbox-image');
+    const closeLightbox = document.getElementById('lightbox-close');
+    const zoomables = document.querySelectorAll('.zoomable');
+
+    zoomables.forEach((img) => {
+      img.addEventListener('click', () => {
+        lightboxImage.src = img.src;
+        lightboxImage.alt = img.alt;
+        lightbox.classList.add('open');
+      });
+    });
+
+    function closeBox() {
+      lightbox.classList.remove('open');
+      lightboxImage.src = '';
+    }
+
+    closeLightbox.addEventListener('click', closeBox);
+    lightbox.addEventListener('click', (event) => {
+      if (event.target === lightbox) closeBox();
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape') closeBox();
+    });
+  </script>
+</body>
+</html>

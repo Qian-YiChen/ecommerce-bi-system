@@ -1,0 +1,55 @@
+@startuml
+skinparam componentStyle rectangle
+skinparam shadowing false
+
+package "前端层" {
+  [Vue3 前端页面\n仪表盘 / 查询 / 预测 / 预警 / 报表] as Frontend
+}
+
+package "后端层" {
+  [Flask 主程序\napp.py] as FlaskApp
+  [认证与权限模块\nauth_routes + jwt_middleware] as AuthModule
+  [数据分析模块\ndata_routes + report_routes] as DataModule
+  [预测模块\npredict_routes] as PredictModule
+  [预警模块\nalert_routes + scheduler] as AlertModule
+  [管理模块\nadmin_routes + datasource_routes + profile_routes] as AdminModule
+}
+
+package "数据与算法层" {
+  [数据库访问模块\ndb_service.py] as DBService
+  database "MySQL 数据库\n业务数据存储" as MySQL
+  [机器学习模块\nml_pipeline.py] as MLPipeline
+  [模型文件\nsales_lr_baseline.pkl] as ModelFile
+}
+
+Frontend --> FlaskApp : HTTP / JSON / JWT
+
+FlaskApp --> AuthModule : 登录、注册、鉴权
+FlaskApp --> DataModule : 查询、报表
+FlaskApp --> PredictModule : 销量预测、库存建议
+FlaskApp --> AlertModule : 异常检测、定时扫描
+FlaskApp --> AdminModule : 用户管理、数据源状态、用户画像
+
+AuthModule --> DBService : 查询用户信息
+DataModule --> DBService : 聚合销售数据
+AdminModule --> DBService : 管理数据读写
+AlertModule --> DBService : 读取规则/写入日志
+
+PredictModule --> MLPipeline : 调用预测函数
+AlertModule --> MLPipeline : 调用异常检测
+MLPipeline --> ModelFile : 加载训练模型
+MLPipeline --> MySQL : 读取历史销售与库存数据
+
+DBService --> MySQL : 执行 SQL
+
+note right of Frontend
+负责页面展示、筛选交互、
+图表渲染和接口调用
+end note
+
+note right of MLPipeline
+负责销售预测、
+库存补货建议、
+异常检测等智能分析
+end note
+@enduml

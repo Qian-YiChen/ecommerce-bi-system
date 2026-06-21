@@ -1,0 +1,21 @@
+@startuml
+actor 用户
+participant "QueryPage.vue" as QueryPage
+participant "dataAPI" as DataAPI
+participant "data_routes.py" as DataRoutes
+participant "db_service.py" as DBService
+database "MySQL" as MySQL
+
+用户 -> QueryPage : 选择筛选条件并点击查询
+QueryPage -> DataAPI : querySales(params)
+DataAPI -> DataRoutes : GET /api/data/sales
+DataRoutes -> DataRoutes : 校验 JWT / 参数
+DataRoutes -> DBService : query_sales(start,end,region,category,channel,group_by)
+DBService -> MySQL : 执行聚合 SQL
+MySQL --> DBService : 返回结果集
+DBService --> DataRoutes : summary + series + by_category + by_region
+DataRoutes --> DataAPI : JSON 响应
+DataAPI --> QueryPage : 结果数据
+QueryPage -> QueryPage : 更新卡片/图表/表格
+QueryPage --> 用户 : 展示查询结果
+@enduml

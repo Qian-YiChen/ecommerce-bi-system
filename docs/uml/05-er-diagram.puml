@@ -1,0 +1,102 @@
+@startuml
+hide circle
+skinparam linetype ortho
+skinparam shadowing false
+
+entity "user\n系统用户表" as user {
+  *user_id : 用户ID <<PK>>
+  --
+  username : 用户名
+  role : 角色
+  status : 账号状态
+}
+
+entity "category\n商品品类表" as category {
+  *category_id : 品类ID <<PK>>
+  --
+  category_name : 品类名称
+  parent_id : 父品类ID
+}
+
+entity "product\n商品表" as product {
+  *product_id : 商品ID <<PK>>
+  --
+  category_id : 所属品类ID <<FK>>
+  product_name : 商品名称
+  stock_quantity : 当前库存
+}
+
+entity "customer\n客户表" as customer {
+  *customer_id : 客户ID <<PK>>
+  --
+  customer_name : 客户名称
+  region : 所在地区
+}
+
+entity "sales_record\n销售记录表" as sales_record {
+  *record_id : 记录ID <<PK>>
+  --
+  product_id : 商品ID <<FK>>
+  customer_id : 客户ID <<FK>>
+  total_amount : 订单金额
+  order_date : 下单日期
+  channel : 销售渠道
+}
+
+entity "user_profile\n用户画像表" as user_profile {
+  *profile_id : 画像ID <<PK>>
+  --
+  customer_id : 客户ID <<FK>>
+  value_level : 客户价值等级
+  preferred_category : 偏好品类
+}
+
+entity "sales_forecast\n销售预测表" as sales_forecast {
+  *forecast_id : 预测ID <<PK>>
+  --
+  product_id : 商品ID <<FK>>
+  forecast_date : 预测日期
+  predicted_quantity : 预测销量
+}
+
+entity "alert_rule\n预警规则表" as alert_rule {
+  *rule_id : 规则ID <<PK>>
+  --
+  product_id : 商品ID <<FK>>
+  rule_name : 规则名称
+  threshold : 阈值
+}
+
+entity "alert_log\n预警日志表" as alert_log {
+  *log_id : 日志ID <<PK>>
+  --
+  rule_id : 规则ID <<FK>>
+  trigger_time : 触发时间
+  status : 处理状态
+}
+
+entity "campaign\n营销活动表" as campaign {
+  *campaign_id : 活动ID <<PK>>
+  --
+  campaign_name : 活动名称
+  start_date : 开始日期
+  discount_rate : 折扣率
+}
+
+category ||--o{ product : 品类包含商品
+product ||--o{ sales_record : 商品产生销售记录
+customer ||--o{ sales_record : 客户产生销售记录
+customer ||--o| user_profile : 客户形成画像
+product ||--o{ sales_forecast : 商品对应预测结果
+product ||--o{ alert_rule : 商品配置预警规则
+alert_rule ||--o{ alert_log : 规则触发预警日志
+
+note right of campaign
+营销活动与商品之间
+在课程作业中采用逻辑关联
+end note
+
+note bottom of user
+用户表用于登录认证与权限控制
+end note
+@enduml

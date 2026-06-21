@@ -1,0 +1,54 @@
+@startuml
+left to right direction
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam actorStyle awesome
+skinparam usecase {
+  BackgroundColor #f8fbff
+  BorderColor #5b6b7a
+}
+
+actor "高层管理者" as Executive
+actor "电商运营经理" as Ops
+actor "数据分析师" as Analyst
+actor "系统管理员" as Admin
+
+rectangle "电商商品销售分析与预测系统" {
+  package "经营分析" {
+    usecase "UC-01\n多维度销售数据查询与分析" as UC01
+    usecase "UC-09\n可视化报表生成与导出" as UC09
+  }
+
+  package "预测决策" {
+    usecase "UC-02\n销售趋势预测" as UC02
+    usecase "UC-03\n库存需求预测" as UC03
+  }
+
+  package "智能监控" {
+    usecase "UC-08\n异常销售检测与预警" as UC08
+  }
+
+  package "管理支持" {
+    usecase "UC-04\n用户画像查看" as UC04
+    usecase "UC-10\n用户与权限管理" as UC10
+  }
+}
+
+Executive --> UC01
+Executive --> UC09
+
+Ops --> UC02
+Ops --> UC03
+Ops --> UC08
+Ops --> UC09
+
+Analyst --> UC01
+Analyst --> UC04
+Analyst --> UC09
+
+Admin --> UC08
+Admin --> UC10
+
+UC03 ..> UC02 : <<include>>
+UC09 ..> UC01 : <<extend>>
+@enduml

@@ -1,0 +1,37 @@
+@startuml
+participant "APScheduler" as Scheduler
+participant "scheduler.py" as SchedulerPy
+participant "alert_routes.py" as AlertRoutes
+participant "ml_pipeline.py" as MLPipeline
+participant "db_service.py / SQL" as DBLayer
+database "MySQL" as MySQL
+actor 管理员
+
+Scheduler -> SchedulerPy : 到达触发时间
+SchedulerPy -> AlertRoutes : scan_alerts()
+AlertRoutes -> MLPipeline : detect_anomalies_for_api()
+MLPipeline -> MySQL : 查询近7日销售数据
+MySQL --> MLPipeline : 销售记录
+MLPipeline -> MLPipeline : 计算异常值与基线
+MLPipeline --> AlertRoutes : anomalies[]
+
+AlertRoutes -> DBLayer : 查询启用的预警规则
+DBLayer -> MySQL : SELECT alert_rule
+MySQL --> DBLayer : rule list
+DBLayer --> AlertRoutes : 规则列表
+
+loop 每条异常
+  AlertRoutes -> AlertRoutes : 匹配规则阈值
+  alt 命中规则
+    AlertRoutes -> DBLayer : 写入 alert_log
+    DBLayer -> MySQL : INSERT alert_log
+    MySQL --> DBLayer : success
+    DBLayer --> AlertRoutes : log_id
+  end
+end
+
+管理员 -> AlertRoutes : GET /api/alert/logs
+AlertRoutes -> MySQL : 查询 alert_log
+MySQL --> AlertRoutes : 日志列表
+AlertRoutes --> 管理员 : 返回待处理告警
+@enduml

@@ -1,0 +1,47 @@
+@startuml
+skinparam componentStyle rectangle
+skinparam shadowing false
+skinparam packageStyle rectangle
+
+package "后端层（Flask）" {
+  [app.py\n应用入口] as App
+  [认证模块\nauth_routes + auth_service] as AuthModule
+  [数据分析模块\ndata_routes + report_routes] as DataModule
+  [预测模块\npredict_routes] as PredictModule
+  [预警模块\nalert_routes + scheduler] as AlertModule
+  [管理模块\nadmin / datasource / profile] as AdminModule
+  [JWT 中间件] as JwtMiddleware
+  [数据库服务层\ndb_service] as DBService
+  [机器学习服务\nml_pipeline] as MLPipeline
+}
+
+App --> AuthModule
+App --> DataModule
+App --> PredictModule
+App --> AlertModule
+App --> AdminModule
+
+AuthModule --> JwtMiddleware
+DataModule --> JwtMiddleware
+PredictModule --> JwtMiddleware
+AlertModule --> JwtMiddleware
+AdminModule --> JwtMiddleware
+
+AuthModule --> DBService
+DataModule --> DBService
+AdminModule --> DBService
+AlertModule --> DBService
+
+PredictModule --> MLPipeline
+AlertModule --> MLPipeline
+
+note right of App
+统一注册蓝图，
+作为后端服务总入口
+end note
+
+note bottom of DBService
+封装数据库连接、
+查询与写入逻辑
+end note
+@enduml

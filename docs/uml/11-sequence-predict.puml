@@ -1,0 +1,32 @@
+@startuml
+actor 用户
+participant "PredictPage.vue" as PredictPage
+participant "predictAPI" as PredictAPI
+participant "predict_routes.py" as PredictRoutes
+participant "ml_pipeline.py" as MLPipeline
+database "MySQL" as MySQL
+collections "模型文件" as ModelFile
+
+用户 -> PredictPage : 打开预测页
+PredictPage -> PredictAPI : getSalesForecast()
+PredictAPI -> PredictRoutes : GET /api/predict/sales
+PredictRoutes -> MLPipeline : predict_sales_for_api()
+MLPipeline -> ModelFile : load_model()
+MLPipeline -> MySQL : 读取商品与历史销售数据
+MySQL --> MLPipeline : 返回训练特征与商品信息
+MLPipeline -> MLPipeline : 递归预测未来7天销量
+MLPipeline --> PredictRoutes : 168 条预测结果
+PredictRoutes --> PredictAPI : JSON 响应
+PredictAPI --> PredictPage : 预测列表
+
+PredictPage -> PredictAPI : getStockSuggestions()
+PredictAPI -> PredictRoutes : GET /api/predict/stock
+PredictRoutes -> MLPipeline : predict_stock_for_api()
+MLPipeline -> MySQL : 读取库存与预测数据
+MySQL --> MLPipeline : 当前库存
+MLPipeline -> MLPipeline : 计算安全库存与补货量
+MLPipeline --> PredictRoutes : 补货建议
+PredictRoutes --> PredictAPI : JSON 响应
+PredictAPI --> PredictPage : 库存建议
+PredictPage --> 用户 : 展示预测与补货结果
+@enduml

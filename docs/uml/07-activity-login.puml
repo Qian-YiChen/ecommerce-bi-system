@@ -1,0 +1,42 @@
+@startuml
+start
+:用户打开登录页;
+:输入用户名和密码;
+:点击登录;
+:前端调用 /api/auth/login;
+
+if (参数为空?) then (是)
+  :提示表单校验错误;
+  stop
+else (否)
+endif
+
+:auth_routes 接收请求;
+:auth_service 校验用户名格式;
+:db_service 查询 user 表;
+
+if (用户存在?) then (否)
+  :返回用户名或密码错误;
+  stop
+else (是)
+endif
+
+:bcrypt 校验密码;
+if (密码正确?) then (否)
+  :返回 401;
+  stop
+else (是)
+endif
+
+if (账号被禁用?) then (是)
+  :返回账号已禁用;
+  stop
+else (否)
+endif
+
+:生成 JWT Token;
+:返回 token 与用户信息;
+:前端写入 localStorage;
+:跳转仪表盘;
+stop
+@enduml

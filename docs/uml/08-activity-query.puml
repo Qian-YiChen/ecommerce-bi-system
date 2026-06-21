@@ -1,0 +1,30 @@
+@startuml
+start
+:用户进入数据查询页;
+:设置日期/地区/品类/渠道/粒度;
+:点击查询;
+:前端调用 /api/data/sales;
+:data_routes 解析查询参数;
+
+if (参数合法?) then (否)
+  :返回参数错误;
+  stop
+else (是)
+endif
+
+:db_service 组装聚合 SQL;
+:MySQL 执行查询;
+
+if (有结果?) then (否)
+  :返回空结果集;
+  :前端显示暂无数据;
+  stop
+else (是)
+endif
+
+:汇总 summary / series / by_category / by_region;
+:返回 JSON 响应;
+:前端刷新指标卡片;
+:前端渲染趋势图、饼图、地区表格;
+stop
+@enduml
