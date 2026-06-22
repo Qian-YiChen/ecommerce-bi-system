@@ -1,0 +1,59 @@
+@startgantt
+' ============================================================
+' 电商BI系统 — 项目甘特图
+' PlantUML 源文件，可用 https://plantuml.com 在线渲染为PNG
+' ============================================================
+
+title 电商BI系统 — 项目甘特图（2026.06.08 – 06.21）
+
+' ---- 项目设置 ----
+project starts 2026-06-08
+printscale weekly
+sunday close
+saturday close
+
+' ---- 阶段一：骨架搭建（Day 1–3）----
+[需求分析文档] as [RA] lasts 3 days and is colored in Green
+[软件设计文档] as [SD] lasts 8 days and is colored in Green
+[项目管理文档] as [PM] lasts 14 days and is colored in Green
+[测试文档] as [TD] lasts 9 days and is colored in Green
+[后端框架+认证] as [BE1] lasts 3 days and is colored in SkyBlue
+[数据库DDL+ETL] as [DB1] lasts 3 days and is colored in SkyBlue
+[Vue3框架+仪表盘] as [FE1] lasts 3 days and is colored in Orange
+[ML基线模型] as [ML1] lasts 3 days and is colored in Plum
+
+' ---- 阶段二：P0猛攻（Day 4–8）----
+[数据查询API] as [BE2] starts 3 days after [BE1]'s end and lasts 5 days and is colored in SkyBlue
+[预测API(UC02/03)] as [BE3] starts 3 days after [BE1]'s end and lasts 5 days and is colored in SkyBlue
+[预警模块(UC08)] as [BE4] starts 3 days after [BE1]'s end and lasts 5 days and is colored in SkyBlue
+[报表API(UC09)] as [BE5] starts 3 days after [BE1]'s end and lasts 5 days and is colored in SkyBlue
+[前端核心页面(4页)] as [FE2] starts 3 days after [FE1]'s end and lasts 5 days and is colored in Orange
+[前端管理页面(3页)] as [FE3] starts 3 days after [FE1]'s end and lasts 9 days and is colored in Orange
+[API封装层] as [FE4] starts 3 days after [FE1]'s end and lasts 5 days and is colored in Orange
+[ML模型优化+画像] as [ML2] starts 3 days after [ML1]'s end and lasts 9 days and is colored in Plum
+
+' ---- 阶段三：P1补刀+测试（Day 9–12）----
+[P1路由] as [BE6] starts 8 days after [BE1]'s end and lasts 4 days and is colored in SkyBlue
+[演示模式] as [FE5] starts 8 days after [FE1]'s end and lasts 4 days and is colored in Orange
+[集成测试(96项)] as [TE1] starts 8 days after [BE1]'s end and lasts 4 days and is colored in Salmon
+[UML图绘制(15个)] as [TE2] starts 8 days after [BE1]'s end and lasts 4 days and is colored in Salmon
+[HTML演示页+截图] as [TE3] starts 8 days after [BE1]'s end and lasts 6 days and is colored in Salmon
+
+' ---- 阶段四：整理提交（Day 13–14）----
+[文档补全+整理] as [TE4] starts 10 days after [BE1]'s end and lasts 4 days and is colored in Salmon
+
+' ---- 里程碑 ----
+[需求定稿M1] happens at [RA]'s end
+[P0完成M3] happens at [BE2]'s end
+[测试完成M4] happens at [TE1]'s end
+[最终提交M6] happens at [TE4]'s end
+
+' ---- 图例 ----
+legend
+LegendColor Green  | 文档撰写
+LegendColor SkyBlue | 后端开发
+LegendColor Orange  | 前端开发
+LegendColor Plum    | ML算法
+LegendColor Salmon  | 测试演示
+end legend
+@endgantt

@@ -754,17 +754,17 @@
 画像：GET /api/profile/users</div>
         </div>
         <div class="stat-preview" id="preview-db">
-          <h4>核心数据表概览</h4>
-          <div class="code-card">user
-category
-product
-customer
-sales_record
-user_profile
-sales_forecast
-alert_rule
-alert_log
-campaign</div>
+          <h4>核心数据表概览（10 张）</h4>
+          <div class="code-card">user             — 系统用户表（登录认证 + RBAC 权限）
+category         — 品类表（三级层级树）
+product          — 商品表（SKU + 价格/库存）
+customer         — 客户表（脱敏基础信息）
+sales_record     — 销售记录表★（核心事实表）
+user_profile     — 用户画像表（RFM 价值分层）
+sales_forecast   — 销售预测表（ML 预测结果）
+alert_rule       — 预警规则表（触发条件配置）
+alert_log        — 预警日志表（告警历史+处理）
+campaign         — 营销活动表（促销效果评估）</div>
         </div>
         <div class="stat-preview" id="preview-test">
           <h4>测试结果片段</h4>
@@ -1006,12 +1006,13 @@ test_predict_alert_integration.py # 60 项
             </ul>
           </div>
           <div class="member-card">
-            <h4>闫维岳</h4>
-            <div class="role">前端管理页 / 测试 / 展示</div>
+            <h4>姚凯曦</h4>
+            <div class="role">前端开发 / 测试 / 文档</div>
             <ul class="flat">
               <li>登录、预警、管理页面</li>
-              <li>联调测试</li>
-              <li>展示材料整理</li>
+              <li>数据源配置页</li>
+              <li>演示模式（Mock 数据）</li>
+              <li>测试文档（96/96）</li>
             </ul>
           </div>
           <div class="member-card">
@@ -1025,12 +1026,13 @@ test_predict_alert_integration.py # 60 项
             </ul>
           </div>
           <div class="member-card">
-            <h4>姚凯曦</h4>
-            <div class="role">前端核心页面</div>
+            <h4>闫维岳</h4>
+            <div class="role">演示材料 / 联调测试</div>
             <ul class="flat">
-              <li>仪表盘页面</li>
-              <li>查询、预测、报表页面</li>
-              <li>前端展示逻辑</li>
+              <li>HTML 交互演示页</li>
+              <li>系统界面截图</li>
+              <li>UML 图 PNG 导出</li>
+              <li>前后端联调</li>
             </ul>
           </div>
         </div>

@@ -24,22 +24,22 @@
 ```
 工程/
 ├── backend/                    # Python Flask 后端（严辰乐 + 苏文韬）
-│   ├── app.py                  # 主入口（24条路由，APScheduler）
+│   ├── app.py                  # 主入口（23条路由，APScheduler）
 │   ├── config.py               # 配置中心（JWT/MySQL/CORS）
 │   ├── scheduler.py            # 定时预警调度（每小时扫描）
 │   ├── requirements.txt        # Python 依赖
 │   ├── auth/                   # JWT 认证服务
 │   ├── middleware/              # JWT + RBAC 中间件
 │   ├── models/                 # 数据模型（User）
-│   ├── routes/                 # API 路由（7个模块，24条路由）
+│   ├── routes/                 # API 路由（8个模块，23条路由）
 │   │   ├── auth_routes.py      # 认证：登录/注册/当前用户
 │   │   ├── data_routes.py      # 数据查询：多维度销售分析
 │   │   ├── report_routes.py    # 报表：生成/下载
 │   │   ├── predict_routes.py   # 预测：销售预测/库存补货
 │   │   ├── alert_routes.py     # 预警：规则CRUD/日志/扫描
-│   │   ├── admin_routes.py     # 管理：用户CRUD（P1）
-│   │   ├── datasource_routes.py # 数据源：状态/历史（P1）
-│   │   └── profile_routes.py   # 用户画像（P1）
+│   │   ├── admin_routes.py     # 管理：用户CRUD
+│   │   ├── datasource_routes.py # 数据源：状态/历史/上传
+│   │   └── profile_routes.py   # 用户画像
 │   ├── database/               # 数据库服务层
 │   ├── test_auth_integration.py         # 认证测试（36项）
 │   └── test_predict_alert_integration.py # 预测+预警测试（60项）
@@ -79,14 +79,27 @@
 │   ├── generate_mock_data.py    # 随机数据生成脚本
 │   └── output/seed_data.sql     # 生成的批量种子数据
 │
-└── docs/                        # 项目文档
-    ├── 需求分析文档.md           # v1.0（943行8章）
-    ├── 团队分工说明.md           # 分工+2周冲刺计划
-    ├── 函数参数需求文档.md       # 组员接口约定
-    ├── 项目管理文档.md           # 甘特图+风险+交付清单
-    └── design/
-        ├── 设计文档-架构章.md    # 四层B/S架构
-        └── 软件设计文档.md       # 总体+详细设计
+├── demo/                         # 演示材料（闫维岳 + 严辰乐）
+│   ├── 项目演示-交互版.html      # HTML 交互演示（替代PPT）
+│   ├── 项目演示大纲.md           # 演示结构+时间分配
+│   └── 演示用图/                 # 14张（7界面截图 + 7 UML图PNG）
+│
+├── docs/                         # 项目文档
+│   ├── 需求分析文档.md           # v1.0（功能/非功能/数据需求）
+│   ├── 团队分工说明.md           # 分工+2周冲刺计划
+│   ├── 函数参数需求文档.md       # 组员接口约定
+│   ├── 项目管理文档.md           # 甘特图+风险+交付清单
+│   ├── 测试报告.md               # 96/96全部通过
+│   ├── 分工与工作情况说明.md     # 组长提交：5人工作情况
+│   ├── AI协作手册.md             # 环境配置/踩坑记录/协作规范
+│   ├── design/
+│   │   ├── 设计文档-架构章.md    # 四层B/S架构
+│   │   └── 软件设计文档.md       # 总体+详细设计（UML图已补全）
+│   └── uml/                      # 16个PlantUML源文件
+│
+├── 心得/                         # 5份课程实践心得
+├── 进度.txt                      # 当前进度+剩余任务
+└── start.bat                     # 演示材料一键启动
 ```
 
 ## 快速开始
@@ -157,16 +170,17 @@ npm run dev
 
 | 功能 | 后端 | 前端 | 说明 |
 |------|------|------|------|
-| 用户画像 | `GET /api/profile/users` | — | RFM模型 |
-| 用户管理 | `GET/POST/PUT /api/admin/users` | UserManagement | 仅admin |
+| 用户画像 | `GET /api/profile/users` | — | RFM模型（UC-04） |
+| 用户管理 | `GET/POST/PUT /api/admin/users` | UserManagement | 仅admin（UC-10） |
 | 数据源状态 | `GET /api/admin/datasource/status` | DatasourceConfig | 仅admin |
 | 定时预警 | APScheduler 每小时扫描 | — | 自动触发 |
+| 营销评估 | `ml_pipeline.evaluate_campaign()` | — | ML管道第8步（UC-07） |
 
 ### P2 — 已砍
 
-> 推荐算法、竞品分析、营销评估
+> 推荐算法、竞品分析
 
-## API 总览（24 条路由）
+## API 总览（23 条路由）
 
 ```
 认证：  POST /api/auth/login       POST /api/auth/register     GET /api/auth/me
@@ -178,7 +192,9 @@ npm run dev
 管理：  GET  /api/admin/users       POST /api/admin/users        PUT  /api/admin/users/<id>
         PUT  /api/admin/users/<id>/toggle-status
         GET  /api/admin/datasource/status   GET /api/admin/datasource/history
+        POST /api/admin/datasource/upload
 画像：  GET  /api/profile/users
+健康：  GET  /api/health
 ```
 
 统一响应格式：
@@ -218,20 +234,20 @@ D:\Anaconda\python.exe test_predict_alert_integration.py  # 60项
 |------|------|----------|
 | 严辰乐 | 24325289 | 组长/后端核心/项目管理：架构设计、JWT认证、预测+预警API、P1路由、前后端对接、文档 |
 | 苏文韬 | 24325237 | 数据库设计+后端数据：10表DDL、db_service、data+report路由、随机数据脚本 |
-| 姚凯曦 | 24325298 | 前端核心：Vue3框架、仪表盘+数据查询+预测+报表+预警+登录+管理页、演示模式、测试文档 |
+| 姚凯曦 | 24325298 | 前端：登录+预警+管理页、演示模式、测试文档（96/96通过） |
 | 薛淞 | 24325286 | ML算法：销售预测+库存补货+异常检测+用户画像+营销评估（8步管道） |
-| 闫维岳 | 24325288 | PPT + 联调测试 |
+| 闫维岳 | 24325288 | 演示材料（HTML交互版）+ 系统截图 + UML图PNG导出 + 联调测试 |
 
 ## 提交物清单
 
 | # | 交付物 | 状态 |
 |---|--------|------|
-| 1 | 需求分析文档 | ✅ v1.0 |
-| 2 | 软件设计文档 | ⚠️ 骨架完成，UML图待补 |
-| 3 | 测试计划与用例报告 | ⚠️ 功能测试完成，性能/安全待补 |
+| 1 | 需求分析文档 | ✅ v1.0（UML图已补全） |
+| 2 | 软件设计文档 | ✅ UML图已补全（16个PlantUML+14张PNG） |
+| 3 | 测试计划与用例报告 | ✅ 96/96全部通过 |
 | 4 | 项目管理文档 | ✅ v1.0 |
-| 5 | 程序源代码 | ✅ 24路由+8页面+ML管道 |
-| 6 | 测试数据 | ✅ |
-| 7 | 系统原型视频 | ❌ |
-| 8 | 演示PPT | ❌ 闫维岳 |
-| 9 | 部署操作说明 | ✅ 287行 |
+| 5 | 程序源代码 | ✅ 23路由+8页面+8步ML |
+| 6 | 测试数据 | ✅ 1200条+种子数据 |
+| 7 | 系统演示材料（替代视频+PPT） | ✅ HTML交互版（demo/项目演示-交互版.html） |
+| 8 | 演示截图 | ✅ 14张（7界面+7UML/图表） |
+| 9 | 部署操作说明 | ✅ |
